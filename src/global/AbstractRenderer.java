@@ -28,8 +28,8 @@ public abstract class AbstractRenderer {
     }
 
     public AbstractRenderer() {
-        this.width = 600;
-        this.height = 400;
+        this.width = 900;
+        this.height = 600;
     }
 
     public void init() {
@@ -58,11 +58,9 @@ public abstract class AbstractRenderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //create and draw text
-        textRenderer.clear();
         textRenderer.addStr2D(3, 20, text);
         textRenderer.addStr2D(3, 50, "pass " + pass);
         textRenderer.addStr2D(width - 90, height - 3, " (c) PGRF UHK");
-        textRenderer.draw();
     }
 
     protected GLFWKeyCallback glfwKeyCallback = new GLFWKeyCallback() {
