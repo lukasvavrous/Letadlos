@@ -1,15 +1,19 @@
 import global.AbstractRenderer;
 import global.GLCamera;
+import lwjglutils.OGLModelOBJ;
 import lwjglutils.OGLTexture2D;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
+import transforms.Point3D;
 import transforms.Vec3D;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
+import java.sql.Time;
 
 import static global.GluUtils.gluPerspective;
 import static global.GlutUtils.*;
@@ -29,9 +33,18 @@ public class Renderer extends AbstractRenderer {
     private boolean mouseButton1 = false;
     private boolean per = true, move = false;
 
+    private long renderTime = 0;
+    private int passedFrames = 0;
+
     private OGLTexture2D terrainTexture;
+    private OGLTexture2D roadTexture;
+    private OGLTexture2D concreteTexture;
+    private OGLTexture2D houseSideTexture;
     private OGLTexture2D[] textureCube;
     private GLCamera camera;
+
+    private int vaoId, vboId, iboId, vaoIdOBJ;
+    OGLModelOBJ model;
 
     public Renderer() {
         super();
@@ -171,7 +184,11 @@ public class Renderer extends AbstractRenderer {
         textureCube = new OGLTexture2D[6];
         System.out.println("Loading textures...");
         try {
-            terrainTexture = new OGLTexture2D("textures/mosaic.jpg");
+            terrainTexture = new OGLTexture2D("textures/grass.jpg");
+            houseSideTexture = new OGLTexture2D("textures/houseSide.jpg");
+            roadTexture = new OGLTexture2D("textures/road.jpg");
+
+
 
             textureCube[0] = new OGLTexture2D("textures/snow_positive_x.jpg");
             textureCube[1] = new OGLTexture2D("textures/snow_negative_x.jpg");
@@ -179,6 +196,9 @@ public class Renderer extends AbstractRenderer {
             textureCube[3] = new OGLTexture2D("textures/skyBox_bottom.jpg");
             textureCube[4] = new OGLTexture2D("textures/snow_positive_z.jpg");
             textureCube[5] = new OGLTexture2D("textures/snow_negative_z.jpg");
+
+            concreteTexture = new OGLTexture2D("textures/bricks.jpg");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -195,6 +215,8 @@ public class Renderer extends AbstractRenderer {
         scene();
         skyBox1();
         terrain();
+        house();
+        plane();
     }
 
     private void scene() {
@@ -370,29 +392,143 @@ public class Renderer extends AbstractRenderer {
         glEndList();
     }
 
+    private void plane(){
+        model = new OGLModelOBJ("/obj/ElephantBody.obj");
+
+        vaoIdOBJ = glGenVertexArrays();
+        glBindVertexArray(vaoIdOBJ);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+    }
+
     private void terrain() {
+
         glNewList(3, GL_COMPILE);
         glPushMatrix();
-        int size = 250;
 
         glEnable(GL_TEXTURE_2D);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+        int terrainSize = 500;
 
         terrainTexture.bind(); //-y bottom
         glBegin(GL_QUADS);
 
         glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(-size, 0, -size);
+        glVertex3d(-terrainSize, 0, -terrainSize);
 
         glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(size, 0, -size);
+        glVertex3d(terrainSize, 0, -terrainSize);
 
         glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(size, 0, size);
+        glVertex3d(terrainSize, 0, terrainSize);
 
         glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(-size, 0, size);
+        glVertex3d(-terrainSize, 0, terrainSize);
+        glEnd();
 
+        roadTexture.bind(); //-y bottom
+        glBegin(GL_QUADS);
+
+        int runwayWidth = 100;
+        int runwayLength = 25;
+
+
+
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(-runwayWidth, 0.1, -runwayLength);
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(runwayWidth, 0.1, -runwayLength);
+
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(runwayWidth, 0.1, runwayLength);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(-runwayWidth, 0.1, runwayLength);
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+        glPopMatrix();
+
+        glEndList();
+    }
+
+    private void house(){
+        glNewList(4, GL_COMPILE);
+        glPushMatrix();
+
+        //default
+        int size = 30;
+
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        Vec3D origin = new Vec3D(140,0,-20);
+
+        houseSideTexture.bind(); //-x  (left)
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(-size + origin.getX(),0 + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(-size + origin.getX(), size + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(-size + origin.getX(), size + origin.getY(), size + origin.getZ());
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(-size + origin.getX(), 0 + origin.getY(), size + origin.getZ());
+        glEnd();
+
+        houseSideTexture.bind();//+x  (right)
+        glBegin(GL_QUADS);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(size + origin.getX(), 0 + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(size + origin.getX(), 0 + origin.getY(), size + origin.getZ());
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(size + origin.getX(), size + origin.getY(), size + origin.getZ());
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(size + origin.getX(), size + origin.getY(), -size + origin.getZ());
+        glEnd();
+
+
+        concreteTexture.bind(); //+y  top
+        glBegin(GL_QUADS);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(-size + origin.getX(), size + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(size + origin.getX(), size + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(size + origin.getX(), size + origin.getY(), size + origin.getZ());
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(-size + origin.getX(), size + origin.getY(), size + origin.getZ());
+
+
+        glEnd();
+
+        houseSideTexture.bind(); //-z
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(size + origin.getX(), 0 + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(-size + origin.getX(), 0 + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(-size + origin.getX(), size + origin.getY(), -size + origin.getZ());
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(size + origin.getX(), size + origin.getY(), -size + origin.getZ());
+        glEnd();
+
+        houseSideTexture.bind(); //+z
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(-size + origin.getX(), size + origin.getY(), size + origin.getZ());
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(-size + origin.getX(), 0 + origin.getY(), size + origin.getZ());
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(size + origin.getX(), 0 + origin.getY(), size + origin.getZ());
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(size + origin.getX(), size + origin.getY(), size + origin.getZ());
         glEnd();
 
         glDisable(GL_TEXTURE_2D);
@@ -413,6 +549,7 @@ public class Renderer extends AbstractRenderer {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         if (per)
+            //gluPerspective(45, width / (float) height, 0.1f, 500.0f);
             gluPerspective(45, width / (float) height, 0.1f, 500.0f);
         else
             glOrtho(-20 * width / (float) height,
@@ -450,6 +587,45 @@ public class Renderer extends AbstractRenderer {
         glCallList(3);
         glPopMatrix();
 
+
+        glPushMatrix();
+        camera.setMatrix();
+        glCallList(4);
+        glPopMatrix();
+
+        /*
+        System.out.println("renderTime " + renderTime);
+
+        if(renderTime == 0){
+            renderTime = System.currentTimeMillis()-100;
+        }
+
+        System.out.println("renderTime " + renderTime);
+
+
+        long timeDiff = System.currentTimeMillis() - renderTime;
+
+        System.out.println("Time diff " + timeDiff);
+
+        renderTime += timeDiff;
+        passedFrames++;
+
+*/
+
+        glBindVertexArray(vaoIdOBJ);
+        glEnableClientState(GL_ARRAY_BUFFER);
+        glColor3f(1,1,0);
+
+
+        var a =  model.getVerticesBuffer().limit();
+
+        glDrawArrays(GL_TRIANGLES, 0, model.getVerticesBuffer().limit());
+
+
+        glDisableClientState(GL_ARRAY_BUFFER);
+
+
+
         if (per)
             text += ", [P]ersp ";
         else
@@ -460,12 +636,23 @@ public class Renderer extends AbstractRenderer {
         else
             text += ", Ani[m] ";
 
+        //System.out.println(passedFrames + " + " + renderTime);
+
+        if (renderTime >= 1000) {
+            long fps = passedFrames / renderTime;
+            System.out.println(fps);
+
+            //renderTime = 0;
+            //passedFrames = 0;
+
+            textRenderer.addStr2D(3, 60, ( "FPS: " + fps) );
+        }
 
         String textInfo = "position " + camera.getPosition().toString();
         textInfo += String.format(" azimuth %3.1f, zenith %3.1f", azimut, zenit);
 
         textRenderer.addStr2D(3, 20, text);
         textRenderer.addStr2D(3, 40, textInfo);
-        textRenderer.addStr2D(width - 130, height - 3, "PGRF UHK LETADLOS");
+        textRenderer.addStr2D(width - 150, height - 3, "PGRF@ UHK  LETADLOS");
     }
 }
