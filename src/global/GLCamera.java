@@ -5,6 +5,8 @@ import transforms.Vec3D;
 import java.util.Locale;
 
 import static global.GluUtils.gluLookAt;
+import static org.lwjgl.opengl.GL11.glRotatef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
 
 public class GLCamera {
 
@@ -178,6 +180,17 @@ public class GLCamera {
 		return pos;
 	}
 
+	public void rotateAroundf(float angley,float anglex, float r, float cx, float cy, float cz){
+		glTranslatef(0, 0, -r);
+
+		// rotate
+		glRotatef(angley, 0, 1, 0);
+		glRotatef(anglex, 1, 0, 0);
+
+		// move to center of circle
+		glTranslatef(-cx, -cy, -cz);
+	}
+
 	public void setMatrix() {
 		if (!valid)
 			compute_matrix();
@@ -187,6 +200,7 @@ public class GLCamera {
 				up.getX(), up.getY(), up.getZ()
 		);
 	}
+
 
 	public String toString(final String format) {
 		return String.format(Locale.US,

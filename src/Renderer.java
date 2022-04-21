@@ -13,6 +13,7 @@ import transforms.Vec3D;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.sql.Time;
 
 import static global.GluUtils.gluPerspective;
@@ -33,9 +34,10 @@ public class Renderer extends AbstractRenderer {
     private boolean mouseButton1 = false;
     private boolean per = true, move = false;
 
-    private long renderTime = 0;
+    private long lastFrame = 0;
     private int passedFrames = 0;
 
+    private OGLTexture2D planeTexture;
     private OGLTexture2D terrainTexture;
     private OGLTexture2D roadTexture;
     private OGLTexture2D concreteTexture;
@@ -188,8 +190,6 @@ public class Renderer extends AbstractRenderer {
             houseSideTexture = new OGLTexture2D("textures/houseSide.jpg");
             roadTexture = new OGLTexture2D("textures/road.jpg");
 
-
-
             textureCube[0] = new OGLTexture2D("textures/snow_positive_x.jpg");
             textureCube[1] = new OGLTexture2D("textures/snow_negative_x.jpg");
             textureCube[2] = new OGLTexture2D("textures/snow_positive_y.jpg");
@@ -210,7 +210,7 @@ public class Renderer extends AbstractRenderer {
 
         camera = new GLCamera();
         camera.setPosition(new Vec3D(10));
-        camera.setFirstPerson(true);
+        camera.setFirstPerson(false);
 
         scene();
         skyBox1();
@@ -393,13 +393,62 @@ public class Renderer extends AbstractRenderer {
     }
 
     private void plane(){
-        model = new OGLModelOBJ("/obj/ElephantBody.obj");
+        vaoId = glGenVertexArrays();
+        glBindVertexArray(vaoId);
+
+        vboId = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+
+        glVertexPointer(3, GL_FLOAT, 6 * 4, 0);
+        glColorPointer(3, GL_FLOAT, 6 * 4, 3 * 4);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        iboId = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
+
+        model= new OGLModelOBJ("/obj/plane.obj");
+        //model= new OGLModelOBJ("/obj/TexturedCube.obj");
 
         vaoIdOBJ = glGenVertexArrays();
         glBindVertexArray(vaoIdOBJ);
 
+        FloatBuffer fb = model.getVerticesBuffer();
+        if (fb != null) {
+            vboId = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, vboId);
+            fb.rewind();
+            glBufferData(GL_ARRAY_BUFFER, fb, GL_STATIC_DRAW);
+            glVertexPointer(4, GL_FLOAT, 4 * 4, 0);
+        }
+        fb = model.getNormalsBuffer();
+        if (fb != null) {
+            vboId = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, vboId);
+            fb.rewind();
+            glBufferData(GL_ARRAY_BUFFER, fb, GL_STATIC_DRAW);
+            glColorPointer(3, GL_FLOAT, 3 * 4, 0);
+            glNormalPointer(GL_FLOAT, 3 * 4, 0);
+        }
+        fb = model.getTexCoordsBuffer();
+        if (fb != null) {
+            vboId = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, vboId);
+            fb.rewind();
+            glBufferData(GL_ARRAY_BUFFER, fb, GL_STATIC_DRAW);
+            glTexCoordPointer(2, GL_FLOAT, 2 * 4, 0);
+        }
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+
+        System.out.println("Loading textures...");
+        try {
+            planeTexture = new OGLTexture2D("textures/Plane_diffuse.png"); // vzhledem k adresari res v projektu
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -416,13 +465,13 @@ public class Renderer extends AbstractRenderer {
         terrainTexture.bind(); //-y bottom
         glBegin(GL_QUADS);
 
-        glTexCoord2f(0.0f, 1.0f);
+        glTexCoord2f(1.0f, 100.0f);
         glVertex3d(-terrainSize, 0, -terrainSize);
 
-        glTexCoord2f(1.0f, 1.0f);
+        glTexCoord2f(10.0f, 100.0f);
         glVertex3d(terrainSize, 0, -terrainSize);
 
-        glTexCoord2f(1.0f, 0.0f);
+        glTexCoord2f(100.0f, 1.0f);
         glVertex3d(terrainSize, 0, terrainSize);
 
         glTexCoord2f(0.0f, 0.0f);
@@ -434,8 +483,6 @@ public class Renderer extends AbstractRenderer {
 
         int runwayWidth = 100;
         int runwayLength = 25;
-
-
 
         glTexCoord2f(0.0f, 1.0f);
         glVertex3d(-runwayWidth, 0.1, -runwayLength);
@@ -465,6 +512,9 @@ public class Renderer extends AbstractRenderer {
 
         glEnable(GL_TEXTURE_2D);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         Vec3D origin = new Vec3D(140,0,-20);
 
         houseSideTexture.bind(); //-x  (left)
@@ -565,17 +615,9 @@ public class Renderer extends AbstractRenderer {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        /*
 
         glPushMatrix();
-        camera.setMatrix();
-        glRotatef(uhel, 0, 1, 0);
-        glCallList(1);
-        glPopMatrix();
- */
-
-        glPushMatrix();
-        cameraSky.setMatrix();
+//        cameraSky.setMatrix();
         glCallList(2);
         glPopMatrix();
 
@@ -591,6 +633,50 @@ public class Renderer extends AbstractRenderer {
         glPushMatrix();
         camera.setMatrix();
         glCallList(4);
+        glPopMatrix();
+
+        glPushMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        camera.setMatrix();
+        glPopMatrix();
+
+        glPushMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        camera.setMatrix();
+
+
+        // Render full model
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBindVertexArray(vaoIdOBJ);
+
+        glRotatef(90, 0,1,0);
+
+        glScalef(5f, 5f, 5f);
+
+        glTranslatef(0,1.5f,0);
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+
+        glDrawArrays(GL_TRIANGLES, 0, model.getVerticesBuffer().limit());
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glDisable(GL_TEXTURE_2D);
+        glDisable(GL_LIGHTING);
+        glBindVertexArray(0);
+
+
+        glDisable(GL_VERTEX_ARRAY);
+        glDisable(GL_COLOR_ARRAY);
+        glDisable(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+
         glPopMatrix();
 
         /*
@@ -612,19 +698,6 @@ public class Renderer extends AbstractRenderer {
 
 */
 
-        glBindVertexArray(vaoIdOBJ);
-        glEnableClientState(GL_ARRAY_BUFFER);
-        glColor3f(1,1,0);
-
-
-        var a =  model.getVerticesBuffer().limit();
-
-        glDrawArrays(GL_TRIANGLES, 0, model.getVerticesBuffer().limit());
-
-
-        glDisableClientState(GL_ARRAY_BUFFER);
-
-
 
         if (per)
             text += ", [P]ersp ";
@@ -636,17 +709,8 @@ public class Renderer extends AbstractRenderer {
         else
             text += ", Ani[m] ";
 
-        //System.out.println(passedFrames + " + " + renderTime);
+        //System.out.println(passedFrames + " + " + renderTime)
 
-        if (renderTime >= 1000) {
-            long fps = passedFrames / renderTime;
-            System.out.println(fps);
-
-            //renderTime = 0;
-            //passedFrames = 0;
-
-            textRenderer.addStr2D(3, 60, ( "FPS: " + fps) );
-        }
 
         String textInfo = "position " + camera.getPosition().toString();
         textInfo += String.format(" azimuth %3.1f, zenith %3.1f", azimut, zenit);
@@ -654,5 +718,16 @@ public class Renderer extends AbstractRenderer {
         textRenderer.addStr2D(3, 20, text);
         textRenderer.addStr2D(3, 40, textInfo);
         textRenderer.addStr2D(width - 150, height - 3, "PGRF@ UHK  LETADLOS");
+    }
+
+    private long getTime(){
+        return System.nanoTime() * 100000000;
+    }
+    private int getDeltaTime(){
+        long time = getTime();
+        int delta = (int) (time - lastFrame);
+
+        lastFrame = time;
+        return delta;
     }
 }
