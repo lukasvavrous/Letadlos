@@ -20,6 +20,7 @@ import static global.GluUtils.gluPerspective;
 import static global.GlutUtils.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL33.*;
 
 
@@ -44,6 +45,9 @@ public class Renderer extends AbstractRenderer {
     private OGLTexture2D houseSideTexture;
     private OGLTexture2D[] textureCube;
     private GLCamera camera;
+    public int frameNum;
+
+    private double zfar = 10000;
 
     private int vaoId, vboId, iboId, vaoIdOBJ;
     OGLModelOBJ model;
@@ -73,7 +77,9 @@ public class Renderer extends AbstractRenderer {
                             move = !move;
                             break;
                         case GLFW_KEY_K:
+                            zfar -= 10;
 
+                            System.out.println(camera.getPosition());
                             break;
                         case GLFW_KEY_W:
                         case GLFW_KEY_S:
@@ -165,7 +171,7 @@ public class Renderer extends AbstractRenderer {
         glfwScrollCallback = new GLFWScrollCallback() {
             @Override
             public void invoke(long window, double dx, double dy) {
-                //do nothing
+                camera.forward(dy * 2);
             }
         };
     }
@@ -209,10 +215,12 @@ public class Renderer extends AbstractRenderer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
         camera = new GLCamera();
-        camera.setPosition(new Vec3D(10));
+        camera.setPosition(new Vec3D(-50, 20, 0));
         camera.setFirstPerson(false);
+        camera.setRadius(15);
 
         scene();
+
         skyBox1();
         terrain();
         house();
@@ -288,12 +296,6 @@ public class Renderer extends AbstractRenderer {
 
  */
         // NOt my
-
-        glTranslatef(0, 0, 0);
-        glColor3f(1, 1, 1);
-        glutSolidSphere(10, 30, 30);
-
-
         glEndList();
     }
 
@@ -393,6 +395,8 @@ public class Renderer extends AbstractRenderer {
     }
 
     private void plane(){
+        glNewList(3, GL_COMPILE);
+
         vaoId = glGenVertexArrays();
         glBindVertexArray(vaoId);
 
@@ -450,28 +454,33 @@ public class Renderer extends AbstractRenderer {
             e.printStackTrace();
         }
 
+        glEndList();
     }
 
     private void terrain() {
 
-        glNewList(3, GL_COMPILE);
+        glNewList(4, GL_COMPILE);
         glPushMatrix();
 
         glEnable(GL_TEXTURE_2D);
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
         int terrainSize = 500;
 
         terrainTexture.bind(); //-y bottom
+
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+
         glBegin(GL_QUADS);
 
-        glTexCoord2f(1.0f, 100.0f);
+        glTexCoord2f(0.0f, 10.0f);
         glVertex3d(-terrainSize, 0, -terrainSize);
 
-        glTexCoord2f(10.0f, 100.0f);
+        glTexCoord2f(10.0f, 10.0f);
         glVertex3d(terrainSize, 0, -terrainSize);
 
-        glTexCoord2f(100.0f, 1.0f);
+        glTexCoord2f(10.0f, 0.0f);
         glVertex3d(terrainSize, 0, terrainSize);
 
         glTexCoord2f(0.0f, 0.0f);
@@ -483,6 +492,8 @@ public class Renderer extends AbstractRenderer {
 
         int runwayWidth = 100;
         int runwayLength = 25;
+
+
 
         glTexCoord2f(0.0f, 1.0f);
         glVertex3d(-runwayWidth, 0.1, -runwayLength);
@@ -504,7 +515,7 @@ public class Renderer extends AbstractRenderer {
     }
 
     private void house(){
-        glNewList(4, GL_COMPILE);
+        glNewList(5, GL_COMPILE);
         glPushMatrix();
 
         //default
@@ -589,6 +600,7 @@ public class Renderer extends AbstractRenderer {
 
     @Override
     public void display() {
+        frameNum++;
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
@@ -600,7 +612,7 @@ public class Renderer extends AbstractRenderer {
         glLoadIdentity();
         if (per)
             //gluPerspective(45, width / (float) height, 0.1f, 500.0f);
-            gluPerspective(45, width / (float) height, 0.1f, 500.0f);
+            gluPerspective(45, width / (float) height, 0.1f, zfar);
         else
             glOrtho(-20 * width / (float) height,
                     20 * width / (float) height,
@@ -613,21 +625,11 @@ public class Renderer extends AbstractRenderer {
         GLCamera cameraSky = new GLCamera(camera);
         cameraSky.setPosition(new Vec3D());
 
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-
         glPushMatrix();
-//        cameraSky.setMatrix();
+        cameraSky.setMatrix();
         glCallList(2);
         glPopMatrix();
 
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-
-        glPushMatrix();
-        camera.setMatrix();
-        glCallList(3);
-        glPopMatrix();
 
 
         glPushMatrix();
@@ -635,13 +637,24 @@ public class Renderer extends AbstractRenderer {
         glCallList(4);
         glPopMatrix();
 
-        glPushMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        camera.setMatrix();
-        glPopMatrix();
 
         glPushMatrix();
+        camera.setMatrix();
+        glCallList(5);
+        glPopMatrix();
+
+
+        glPushMatrix();
+
+        glMatrixMode(GL_MODELVIEW);
+
+        glCallList(3);
+        glPopMatrix();
+
+
+
+        glPushMatrix();
+
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         camera.setMatrix();
@@ -651,17 +664,21 @@ public class Renderer extends AbstractRenderer {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glBindVertexArray(vaoIdOBJ);
 
+
         glRotatef(90, 0,1,0);
 
-        glScalef(5f, 5f, 5f);
+        glScalef(10f, 10f, 10f);
 
         glTranslatef(0,1.5f,0);
+
+
 
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
 
         glDrawArrays(GL_TRIANGLES, 0, model.getVerticesBuffer().limit());
         glDisableClientState(GL_COLOR_ARRAY);
+
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -679,7 +696,11 @@ public class Renderer extends AbstractRenderer {
 
         glPopMatrix();
 
+
+
+
         /*
+
         System.out.println("renderTime " + renderTime);
 
         if(renderTime == 0){
@@ -717,6 +738,8 @@ public class Renderer extends AbstractRenderer {
 
         textRenderer.addStr2D(3, 20, text);
         textRenderer.addStr2D(3, 40, textInfo);
+
+        textRenderer.addStr2D(3, 60, "frame number: " + frameNum);
         textRenderer.addStr2D(width - 150, height - 3, "PGRF@ UHK  LETADLOS");
     }
 
