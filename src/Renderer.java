@@ -274,7 +274,6 @@ public class Renderer extends AbstractRenderer {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
 
         model= new OGLModelOBJ("/obj/plane.obj");
-        //model= new OGLModelOBJ("/obj/TexturedCube.obj");
 
         vaoIdOBJ = glGenVertexArrays();
         glBindVertexArray(vaoIdOBJ);
