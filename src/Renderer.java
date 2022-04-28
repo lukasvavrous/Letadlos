@@ -7,14 +7,14 @@ import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
-import transforms.Point3D;
+import partialRenderers.Building;
+import partialRenderers.SkyBox;
 import transforms.Vec3D;
 
-import java.awt.*;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
-import java.sql.Time;
+import java.util.ArrayList;
 
 import static global.GluUtils.gluPerspective;
 import static global.GlutUtils.*;
@@ -43,14 +43,16 @@ public class Renderer extends AbstractRenderer {
     private OGLTexture2D roadTexture;
     private OGLTexture2D concreteTexture;
     private OGLTexture2D houseSideTexture;
-    private OGLTexture2D[] textureCube;
     private GLCamera camera;
     public int frameNum;
 
+    public ArrayList<Building> buildings;
     private double zfar = 10000;
 
     private int vaoId, vboId, iboId, vaoIdOBJ;
     OGLModelOBJ model;
+
+    private SkyBox skyBox;
 
     public Renderer() {
         super();
@@ -70,8 +72,8 @@ public class Renderer extends AbstractRenderer {
 
                 if (action == GLFW_PRESS) {
                     switch (key) {
-                        case GLFW_KEY_P:
-                            per = !per;
+                        case GLFW_KEY_R:
+                            relocateObjects();
                             break;
                         case GLFW_KEY_M:
                             move = !move;
@@ -189,19 +191,11 @@ public class Renderer extends AbstractRenderer {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        textureCube = new OGLTexture2D[6];
         System.out.println("Loading textures...");
         try {
             terrainTexture = new OGLTexture2D("textures/grass.jpg");
             houseSideTexture = new OGLTexture2D("textures/houseSide.jpg");
             roadTexture = new OGLTexture2D("textures/road.jpg");
-
-            textureCube[0] = new OGLTexture2D("textures/snow_positive_x.jpg");
-            textureCube[1] = new OGLTexture2D("textures/snow_negative_x.jpg");
-            textureCube[2] = new OGLTexture2D("textures/snow_positive_y.jpg");
-            textureCube[3] = new OGLTexture2D("textures/skyBox_bottom.jpg");
-            textureCube[4] = new OGLTexture2D("textures/snow_positive_z.jpg");
-            textureCube[5] = new OGLTexture2D("textures/snow_negative_z.jpg");
 
             concreteTexture = new OGLTexture2D("textures/bricks.jpg");
 
@@ -216,15 +210,30 @@ public class Renderer extends AbstractRenderer {
 
         camera = new GLCamera();
         camera.setPosition(new Vec3D(-50, 20, 0));
-        camera.setFirstPerson(false);
-        camera.setRadius(15);
+        camera.setFirstPerson(true);
+        //camera.setRadius(15);
 
-        scene();
+        Vec3D origin = new Vec3D(140,0,-20);
 
-        skyBox1();
+        buildings = new ArrayList<>();
+        skyBox = new SkyBox();
+        buildings.add(new Building(origin, 30));
+        buildings.add(new Building(origin.add(new Vec3D(61,0, 0 )), 30));
+
+
+        //scene();
+
         terrain();
-        house();
+        //house();
         plane();
+    }
+
+    private void relocateObjects(){
+
+    }
+
+    private void renderBuildings(){
+        buildings.forEach(Building::Render);
     }
 
     private void scene() {
@@ -272,123 +281,6 @@ public class Renderer extends AbstractRenderer {
             glTranslatef(0, 0, -10);
             glutSolidSphere(5, 30, 30);
         }
-        glPopMatrix();
-
-        //My
-/*
-        glPushMatrix();
-
-        glTranslatef(3, 10, 3);
-        glColor3f(0, 0, 0);
-
-        for (int i = 0; i < 10; i++) {
-            glTranslatef(0, 0, -10);
-            glutSolidSphere(5, 30, 30);
-
-
-            glutSolidCube(10);
-
-
-        }
-
-        glPopMatrix();
-
-
- */
-        // NOt my
-        glEndList();
-    }
-
-    private void skyBox1() {
-        glNewList(2, GL_COMPILE);
-        glPushMatrix();
-        glColor3d(0.5, 0.5, 0.5);
-        int size = 250;
-
-        glEnable(GL_TEXTURE_2D);
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-        textureCube[1].bind(); //-x  (left)
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(-size, -size, -size);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(-size, size, -size);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(-size, size, size);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(-size, -size, size);
-        glEnd();
-
-        textureCube[0].bind();//+x  (right)
-        glBegin(GL_QUADS);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(size, -size, -size);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(size, -size, size);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(size, size, size);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(size, size, -size);
-        glEnd();
-
-        textureCube[3].bind(); //-y bottom
-        glBegin(GL_QUADS);
-
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(-size, -size, -size);
-
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(size, -size, -size);
-
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(size, -size, size);
-
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(-size, -size, size);
-
-        glEnd();
-
-        textureCube[2].bind(); //+y  top
-        glBegin(GL_QUADS);
-
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(-size, size, -size);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(size, size, -size);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(size, size, size);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(-size, size, size);
-
-
-        glEnd();
-
-        textureCube[5].bind(); //-z
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(size, -size, -size);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(-size, -size, -size);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(-size, size, -size);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(size, size, -size);
-        glEnd();
-
-        textureCube[4].bind(); //+z
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(-size, size, size);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(-size, -size, size);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(size, -size, size);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(size, size, size);
-        glEnd();
-
-        glDisable(GL_TEXTURE_2D);
         glPopMatrix();
 
         glEndList();
@@ -464,7 +356,7 @@ public class Renderer extends AbstractRenderer {
 
         glEnable(GL_TEXTURE_2D);
 
-        int terrainSize = 500;
+        int terrainSize = 750;
 
         terrainTexture.bind(); //-y bottom
 
@@ -490,22 +382,22 @@ public class Renderer extends AbstractRenderer {
         roadTexture.bind(); //-y bottom
         glBegin(GL_QUADS);
 
-        int runwayWidth = 100;
-        int runwayLength = 25;
+        int runwayWidth = 25;
+        int runwayLength = 200;
 
 
 
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3d(-runwayWidth, 0.1, -runwayLength);
+        glTexCoord2f(0.0f, 2.0f);
+        glVertex3d(-runwayLength, 0.1, -runwayWidth);
 
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3d(runwayWidth, 0.1, -runwayLength);
+        glTexCoord2f(1.0f, 2.0f);
+        glVertex3d(runwayLength, 0.1, -runwayWidth);
 
         glTexCoord2f(1.0f, 0.0f);
-        glVertex3d(runwayWidth, 0.1, runwayLength);
+        glVertex3d(runwayLength, 0.1, runwayWidth);
 
         glTexCoord2f(0.0f, 0.0f);
-        glVertex3d(-runwayWidth, 0.1, runwayLength);
+        glVertex3d(-runwayLength, 0.1, runwayWidth);
         glEnd();
 
         glDisable(GL_TEXTURE_2D);
@@ -513,7 +405,7 @@ public class Renderer extends AbstractRenderer {
 
         glEndList();
     }
-
+/*
     private void house(){
         glNewList(5, GL_COMPILE);
         glPushMatrix();
@@ -527,6 +419,8 @@ public class Renderer extends AbstractRenderer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         Vec3D origin = new Vec3D(140,0,-20);
+
+
 
         houseSideTexture.bind(); //-x  (left)
         glBegin(GL_QUADS);
@@ -598,6 +492,8 @@ public class Renderer extends AbstractRenderer {
         glEndList();
     }
 
+
+ */
     @Override
     public void display() {
         frameNum++;
@@ -626,73 +522,67 @@ public class Renderer extends AbstractRenderer {
         cameraSky.setPosition(new Vec3D());
 
         glPushMatrix();
-        cameraSky.setMatrix();
-        glCallList(2);
-        glPopMatrix();
-
-
-
-        glPushMatrix();
-        camera.setMatrix();
-        glCallList(4);
+            cameraSky.setMatrix();
+            skyBox.Render();
         glPopMatrix();
 
 
         glPushMatrix();
-        camera.setMatrix();
-        glCallList(5);
+            camera.setMatrix();
+            glCallList(4);
         glPopMatrix();
 
-
+        //buildings
         glPushMatrix();
+            camera.setMatrix();
 
-        glMatrixMode(GL_MODELVIEW);
-
-        glCallList(3);
+            renderBuildings();
         glPopMatrix();
 
-
+        glPushMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glCallList(3);
+        glPopMatrix();
 
         glPushMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            camera.setMatrix();
 
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        camera.setMatrix();
+            // Render full model
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glBindVertexArray(vaoIdOBJ);
 
-
-        // Render full model
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glBindVertexArray(vaoIdOBJ);
-
-
-        glRotatef(90, 0,1,0);
-
-        glScalef(10f, 10f, 10f);
-
-        glTranslatef(0,1.5f,0);
+            glEnable(GL_TEXTURE_2D);
+            planeTexture.bind();
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glEnableClientState(GL_VERTEX_ARRAY);
 
 
+            glRotatef(90, 0,1,0);
 
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
+            glScalef(10f, 10f, 10f);
 
-        glDrawArrays(GL_TRIANGLES, 0, model.getVerticesBuffer().limit());
-        glDisableClientState(GL_COLOR_ARRAY);
+            glTranslatef(0,1.5f,0);
 
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_NORMAL_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glEnableClientState(GL_COLOR_ARRAY);
 
-        glDisable(GL_TEXTURE_2D);
-        glDisable(GL_LIGHTING);
-        glBindVertexArray(0);
+            glDrawArrays(GL_TRIANGLES, 0, model.getVerticesBuffer().limit());
+            glDisableClientState(GL_COLOR_ARRAY);
 
+            glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_NORMAL_ARRAY);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        glDisable(GL_VERTEX_ARRAY);
-        glDisable(GL_COLOR_ARRAY);
-        glDisable(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);
+            glDisable(GL_TEXTURE_2D);
+            glDisable(GL_LIGHTING);
+            glBindVertexArray(0);
+
+            glDisable(GL_VERTEX_ARRAY);
+            glDisable(GL_COLOR_ARRAY);
+            glDisable(GL_TEXTURE_COORD_ARRAY);
+            glDisableClientState(GL_COLOR_ARRAY);
+            glDisableClientState(GL_VERTEX_ARRAY);
 
         glPopMatrix();
 
@@ -739,15 +629,16 @@ public class Renderer extends AbstractRenderer {
         textRenderer.addStr2D(3, 20, text);
         textRenderer.addStr2D(3, 40, textInfo);
 
-        textRenderer.addStr2D(3, 60, "frame number: " + frameNum);
-        textRenderer.addStr2D(width - 150, height - 3, "PGRF@ UHK  LETADLOS");
+        textRenderer.addStr2D(3, 60, "Frame Count: " + frameNum + ", FPS: " + getFPS());
+        textRenderer.addStr2D(width - 150, height - 3, "PGRF@UHK  LETADLOS");
     }
 
-    private long getTime(){
-        return System.nanoTime() * 100000000;
+    private long getFPS(){
+        return 1000 / getDeltaTime();
     }
+
     private int getDeltaTime(){
-        long time = getTime();
+        long time = System.currentTimeMillis();
         int delta = (int) (time - lastFrame);
 
         lastFrame = time;
