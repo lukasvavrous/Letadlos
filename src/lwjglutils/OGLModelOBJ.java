@@ -63,6 +63,7 @@ private int topology;
 			OBJLoader(String modelPath) {
 				loadOBJModel(modelPath);
 				setFaceRenderType();
+
 			}
 
 			private void loadOBJModel(String modelPath) {

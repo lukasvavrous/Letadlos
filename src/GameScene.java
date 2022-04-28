@@ -19,8 +19,8 @@ public class GameScene implements IRenderable {
     public void generateBuildings(){
         Vec3D origin = new Vec3D(140,0,-20);
 
-        buildings.add(new Building(origin, 30));
-        buildings.add(new Building(origin.add(new Vec3D(61,0, 0 )), 30));
+        buildings.add(new Building(origin, 30,30));
+        buildings.add(new Building(origin.add(new Vec3D(61,0, 0 )), 30, 60));
     }
 
     @Override

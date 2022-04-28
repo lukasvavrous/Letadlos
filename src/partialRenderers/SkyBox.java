@@ -13,12 +13,21 @@ public class SkyBox implements IRenderable{
         textureCube = new OGLTexture2D[6];
 
         try {
+            /*
             textureCube[0] = new OGLTexture2D("textures/snow_positive_x.jpg");
             textureCube[1] = new OGLTexture2D("textures/snow_negative_x.jpg");
             textureCube[2] = new OGLTexture2D("textures/snow_positive_y.jpg");
             textureCube[3] = new OGLTexture2D("textures/skyBox_bottom.jpg");
             textureCube[4] = new OGLTexture2D("textures/snow_positive_z.jpg");
             textureCube[5] = new OGLTexture2D("textures/snow_negative_z.jpg");
+         */
+
+            textureCube[0] = new OGLTexture2D("textures/px.png");
+            textureCube[1] = new OGLTexture2D("textures/nx.png");
+            textureCube[2] = new OGLTexture2D("textures/py.png");
+            textureCube[3] = new OGLTexture2D("textures/ny.png");
+            textureCube[4] = new OGLTexture2D("textures/pz.png");
+            textureCube[5] = new OGLTexture2D("textures/nz.png");
         }
         catch (IOException e){
             e.printStackTrace();
@@ -30,7 +39,7 @@ public class SkyBox implements IRenderable{
         glPushMatrix();
         glDepthMask(false);
         glColor3d(0.5, 0.5, 0.5);
-        int size = 250;
+        int size = 10;
 
         glEnable(GL_TEXTURE_2D);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
