@@ -2,16 +2,14 @@ package partialRenderers;
 
 import lwjglutils.OGLTexture2D;
 import transforms.Vec3D;
+import utils.Collidable;
 
 import java.io.IOException;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Building implements IRenderable{
-    private OGLTexture2D buildingTexture;
-    private int width;
-    private int height;
-    private Vec3D origin;
+public class Building extends Collidable implements IRenderable{
+    private static OGLTexture2D buildingTexture;
 
     public Building(Vec3D origin, int size, int height){
         setBuildingTexture("textures/houseSide.jpg");
@@ -22,6 +20,8 @@ public class Building implements IRenderable{
     }
 
     public void setBuildingTexture(String path) {
+        if (buildingTexture != null) return;
+
         try
         {
             this.buildingTexture = new OGLTexture2D(path);

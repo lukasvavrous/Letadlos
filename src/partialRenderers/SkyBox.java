@@ -7,21 +7,18 @@ import java.io.IOException;
 import static org.lwjgl.opengl.GL11.*;
 
 public class SkyBox implements IRenderable{
-    private OGLTexture2D[] textureCube;
+    private static OGLTexture2D[] textureCube;
 
     public SkyBox(){
+        loadTextures();
+    }
+
+    private void loadTextures(){
+
+        if (textureCube != null) return;
         textureCube = new OGLTexture2D[6];
 
         try {
-            /*
-            textureCube[0] = new OGLTexture2D("textures/snow_positive_x.jpg");
-            textureCube[1] = new OGLTexture2D("textures/snow_negative_x.jpg");
-            textureCube[2] = new OGLTexture2D("textures/snow_positive_y.jpg");
-            textureCube[3] = new OGLTexture2D("textures/skyBox_bottom.jpg");
-            textureCube[4] = new OGLTexture2D("textures/snow_positive_z.jpg");
-            textureCube[5] = new OGLTexture2D("textures/snow_negative_z.jpg");
-         */
-
             textureCube[0] = new OGLTexture2D("textures/px.png");
             textureCube[1] = new OGLTexture2D("textures/nx.png");
             textureCube[2] = new OGLTexture2D("textures/py.png");
