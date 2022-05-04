@@ -69,8 +69,24 @@ public class Renderer extends AbstractRenderer {
                             init();
                             break;
 
+                        case GLFW_KEY_G:
+                            terrain.regenerateBuilding();
+                        break;
+
+                        case GLFW_KEY_B:
+                            terrain.generateBuildings();
+                        break;
+
                         case GLFW_KEY_P:
                             firstPerson = !firstPerson;
+
+                            if(firstPerson){
+                                camera.setFirstPerson(true);
+                            }
+                            else{
+                                camera.setFirstPerson(false);
+                                camera.setRadius(10);
+                            }
                             break;
 
                         case GLFW_KEY_W:
@@ -215,8 +231,8 @@ public class Renderer extends AbstractRenderer {
 
         camera = new GLCamera();
         camera.setPosition(new Vec3D(0, 10, 0));
-        camera.setFirstPerson(true);
-        //camera.setRadius(15);
+        camera.setFirstPerson(false);
+        camera.setRadius(10);
 
         terrain = new Terrain();
         buildings = new ArrayList<>();
@@ -237,7 +253,7 @@ public class Renderer extends AbstractRenderer {
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-        String text = "Reset: [ R ] | Power: " + power;
+        String text = "Reset: [ R ] | Power: " + power + " G-regenerate B-generate";
 
         trans += deltaTrans;
 

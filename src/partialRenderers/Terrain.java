@@ -5,6 +5,7 @@ import transforms.Vec3D;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
@@ -42,13 +43,9 @@ public class Terrain implements IRenderable{
     public boolean isCollision(Vec3D pos){
         boolean result = false;
 
-        Building obj;
-
         for (Building building : buildings){
             if(building.isCollision(pos)){
                 building.wasHit = true;
-
-                obj = building;
 
                 result = true;
             }
@@ -56,14 +53,71 @@ public class Terrain implements IRenderable{
 
         return result;
     }
+    public void regenerateBuilding(){
+        this.buildings.clear();
+        generateBuildings();
+    }
 
     public void generateBuildings(){
+        int maxHeight = 70;
+        int minHeight = 10;
 
-        Vec3D origin = new Vec3D();
+        int maxSize = 70;
+        int minSize = 10;
 
-        buildings.add(new Building(origin, 70, 80));
-        buildings.add(new Building(origin.add(new Vec3D(-61,0, 0 )), 30, 50));
-        buildings.add(new Building(origin.add(new Vec3D(61,0, -30 )), 20, 30));
+        Random random = new Random();
+
+        //Top right
+        for(int i = 0; i <= 10; i++){
+            int height = random.nextInt(maxHeight - minHeight) + minHeight;
+            int size = random.nextInt(maxSize - minSize) + minSize;
+
+            int x = random.nextInt(terrainSize - size);
+            int z = random.nextInt(terrainSize - size);
+
+            Vec3D origin = new Vec3D(x, 0, z);
+
+            buildings.add(new Building(origin, size, height));
+        }
+
+        //Bottom right
+        for(int i = 0; i <= 10; i++){
+            int height = random.nextInt(maxHeight - minHeight) + minHeight;
+            int size = random.nextInt(maxSize - minSize) + minSize;
+
+            int x = random.nextInt(terrainSize - size);
+            int z = random.nextInt(terrainSize - size);
+
+            Vec3D origin = new Vec3D(-x, 0, z);
+
+            buildings.add(new Building(origin, size, height));
+        }
+
+        //top left
+        for(int i = 0; i <= 10; i++){
+            int height = random.nextInt(maxHeight - minHeight) + minHeight;
+            int size = random.nextInt(maxSize - minSize) + minSize;
+
+            int x = random.nextInt(terrainSize - size);
+            int z = random.nextInt(terrainSize - size);
+
+            Vec3D origin = new Vec3D(x, 0, -z);
+
+            buildings.add(new Building(origin, size, height));
+        }
+
+        //top right
+        for(int i = 0; i <= 10; i++){
+            int height = random.nextInt(maxHeight - minHeight) + minHeight;
+            int size = random.nextInt(maxSize - minSize) + minSize;
+
+            int x = random.nextInt(terrainSize - size);
+            int z = random.nextInt(terrainSize - size);
+
+            Vec3D origin = new Vec3D(-x, 0, -z);
+
+            buildings.add(new Building(origin, size, height));
+        }
     }
 
     public void Render(){

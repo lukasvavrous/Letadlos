@@ -11,6 +11,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="lwjgl-assimp-javadoc" level="application" />
+    <orderEntry type="library" exported="" name="lwjgl1" level="application" />
   </component>
 </module>

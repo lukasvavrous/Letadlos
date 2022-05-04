@@ -1,5 +1,6 @@
 package utils;
 
+import partialRenderers.Building;
 import transforms.Vec3D;
 
 public abstract class Collidable {
@@ -9,9 +10,7 @@ public abstract class Collidable {
     public boolean wasHit = false;
 
     private boolean isXCollision(Vec3D point) {
-        boolean l = point.getX() <= origin.getX() + width;
-        boolean r = point.getX() >= origin.getX() - width;
-        return ( l && r);
+        return ( point.getX() <= origin.getX() + width && point.getX() >= origin.getX() - width );
     }
 
     private boolean isYCollision(Vec3D point) {
@@ -19,16 +18,22 @@ public abstract class Collidable {
     }
 
     private boolean isZCollision(Vec3D point) {
-        boolean l = point.getZ() <= origin.getZ() + width;
-        boolean r = point.getZ() >= origin.getZ() - width ;
-        return ( l && r);
+        return ( point.getZ() <= origin.getZ() + width && point.getZ() >= origin.getZ() - width );
     }
 
     public boolean isCollision(Vec3D p){
-        boolean x = isXCollision(p);
-        boolean y = isYCollision(p);
-        boolean z = isZCollision(p);
+        return isXCollision(p) && isYCollision(p) && isZCollision(p);
+    }
 
-        return x && y && z;
+    public boolean isOverlaping(Building b){
+        // Left top | down
+        boolean l_t = isCollision(new Vec3D(b.origin.getX() - b.width, 0, b.origin.getZ() + b.width));
+        boolean l_d =isCollision(new Vec3D(b.origin.getX() - b.width, 0, b.origin.getZ() - b.width));
+
+        // Right top | down
+        boolean r_t = isCollision(new Vec3D(b.origin.getX() + b.width, 0, b.origin.getZ() + b.width));
+        boolean r_d = isCollision(new Vec3D(b.origin.getX() + b.width, 0, b.origin.getZ() - b.width));
+
+        return ( l_t || l_d || r_t || r_d);
     }
 }
