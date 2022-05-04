@@ -96,10 +96,10 @@ public class Terrain implements IRenderable{
             roadTexture.bind(); //-y bottom
             glBegin(GL_QUADS);
 
-            glTexCoord2f(0.0f, 2.0f);
+            glTexCoord2f(0.0f, 1.0f);
             glVertex3d(-runwayLength, 0.1, -runwayWidth);
 
-            glTexCoord2f(1.0f, 2.0f);
+            glTexCoord2f(1.0f, 1.0f);
             glVertex3d(runwayLength, 0.1, -runwayWidth);
 
             glTexCoord2f(1.0f, 0.0f);
