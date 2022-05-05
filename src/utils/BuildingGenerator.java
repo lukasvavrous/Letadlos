@@ -29,28 +29,33 @@ public class BuildingGenerator {
     }
 
     public void generate(){
+        int height = random.nextInt(maxHeight - minHeight) + minHeight;
+        int size = random.nextInt(maxSize - minSize) + minSize;
+
+        int availableSize = borders - size;
+
+        int x = random.nextInt(availableSize);
+        int z = random.nextInt(availableSize);
+
+        Vec3D origin= new Vec3D(x, 0, z);
+
         switch (random.nextInt(4)) {
             case 0:
-                topRight();
+                origin = new Vec3D(x, 0, z);
                 break;
             case 1:
-                buttomRight();
+                origin = new Vec3D(-x, 0, z);
+
                 break;
             case 2:
-                topLeft();
+                origin = new Vec3D(x, 0, -z);
+
                 break;
             case 3:
-                buttomLeft();
-                break;
-
-            case 4:
-                System.out.println("delete me");
-
-                break;
-            default:
-                System.out.println("Chbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+                origin = new Vec3D(-x, 0, z);
                 break;
         }
+        buildings.add(new Building(origin, size, height));
     }
 
     private void topRight(){
@@ -77,16 +82,36 @@ public class BuildingGenerator {
         int x = random.nextInt(availableSize);
         int z = random.nextInt(availableSize);
 
-        Vec3D origin = new Vec3D(-x, 0, z);
+        Vec3D origin = new Vec3D(x, 0, z);
 
         buildings.add(new Building(origin, size, height));
     }
 
     private void buttomLeft() {
+        int height = random.nextInt(maxHeight - minHeight) + minHeight;
+        int size = random.nextInt(maxSize - minSize) + minSize;
 
+        int availableSize = borders - size;
+
+        int x = random.nextInt(availableSize);
+        int z = random.nextInt(availableSize);
+
+        Vec3D origin = new Vec3D(-x, 0, -z);
+
+        buildings.add(new Building(origin, size, height));
     }
 
     private void topLeft(){
+        int height = random.nextInt(maxHeight - minHeight) + minHeight;
+        int size = random.nextInt(maxSize - minSize) + minSize;
 
+        int availableSize = borders - size;
+
+        int x = random.nextInt(availableSize);
+        int z = random.nextInt(availableSize);
+
+        Vec3D origin = new Vec3D(-x, 0, z);
+
+        buildings.add(new Building(origin, size, height));
     }
 }
