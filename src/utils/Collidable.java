@@ -36,9 +36,4 @@ public abstract class Collidable {
 
         return ( l_t || l_d || r_t || r_d);
     }
-
-    public boolean isNotOverlaping(Building b)
-    {
-        return !isOverlaping(b);
-    }
 }

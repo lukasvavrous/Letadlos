@@ -166,7 +166,7 @@ public class Plane {
 
         if(actualSpeed == speed) return;
 
-        float deltaStep = steps * 1/getDeltaTime();
+        float deltaStep = (steps * ( getDeltaTime())) / 10;
 
         if (actualSpeed < speed)
         {
@@ -184,12 +184,12 @@ public class Plane {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+        camera.setMatrix();
 
         camera.backward(actualSpeed);
 
         float[] array = new float[16];
 
-        camera.setMatrix();
 
         Vec3D camPos = camera.getPosition();
 
@@ -199,10 +199,7 @@ public class Plane {
         //System.out.println(mat);
 
         // WTF
-        glTranslated(camPos.getX(),camPos.getY(), camPos.getZ() - 70);
-        glRotatef(180,0,1,0);
-        glScalef(10f, 10f, 10f);
-        glRotatef(planeAngle,0, 0, 1);
+
 
         // Render full model
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

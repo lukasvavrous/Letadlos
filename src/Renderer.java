@@ -27,8 +27,6 @@ public class Renderer extends AbstractRenderer {
     private float dx, dy, ox, oy;
     private float zenit, azimut;
 
-    private float power = 0;
-
     private float trans, deltaTrans = 0;
 
     private boolean mouseButton1 = false;
@@ -37,7 +35,6 @@ public class Renderer extends AbstractRenderer {
 
     private OGLTexture2D concreteTexture;
     private GLCamera camera;
-    public int frameNum;
 
     private double zfar = 10000;
 
@@ -48,9 +45,12 @@ public class Renderer extends AbstractRenderer {
     private SkyBox skyBox;
     public ArrayList<Building> buildings;
 
-    private boolean firstPerson = false;
+    private boolean firstPerson = true;
     private boolean debug = false;
     private boolean collision = false;
+
+    public int frameNum;
+    public long delta = 0;
 
 
 
@@ -198,8 +198,6 @@ public class Renderer extends AbstractRenderer {
     }
 
     private void initVariables(){
-        power = 0;
-
         deltaTrans = 0;
 
         lastFrame = 0;
@@ -265,11 +263,17 @@ public class Renderer extends AbstractRenderer {
 
     @Override
     public void display() {
+        delta = getDeltaTime();
         frameNum++;
 
         String text = "R reset G-regenerate B-generate";
 
-        collision = terrain.isCollision(camera.getPosition());
+        Vec3D camPos = camera.getPosition();
+
+        var eye = camera.getEye();
+
+
+        collision = terrain.isCollision(eye);
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
