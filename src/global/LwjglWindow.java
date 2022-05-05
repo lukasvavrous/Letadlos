@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
+import utils.FpsHelper;
 
 import java.nio.IntBuffer;
 
@@ -190,6 +191,8 @@ public class LwjglWindow {
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		while (!glfwWindowShouldClose(window)) {
+
+			FpsHelper.getInstance().nextFrame();
 
 			renderer.display();
 

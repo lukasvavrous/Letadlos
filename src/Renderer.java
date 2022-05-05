@@ -12,6 +12,7 @@ import partialRenderers.SkyBox;
 import partialRenderers.Terrain;
 
 import transforms.Vec3D;
+import utils.FpsHelper;
 
 import java.io.IOException;
 import java.nio.DoubleBuffer;
@@ -200,8 +201,6 @@ public class Renderer extends AbstractRenderer {
     private void initVariables(){
         deltaTrans = 0;
 
-        lastFrame = 0;
-
         zfar = 10000;
     }
 
@@ -237,7 +236,7 @@ public class Renderer extends AbstractRenderer {
         camera.setPosition(new Vec3D(0, 15, 0));
 
         if (firstPerson){
-            camera.setFirstPerson(true);
+            setFirstPerson();
         }
         else {
             setThirdPerson();
@@ -259,11 +258,8 @@ public class Renderer extends AbstractRenderer {
         camera.setRadius(10);
     }
 
-
-
     @Override
     public void display() {
-        delta = getDeltaTime();
         frameNum++;
 
         String text = "R reset G-regenerate B-generate";
@@ -271,7 +267,6 @@ public class Renderer extends AbstractRenderer {
         Vec3D camPos = camera.getPosition();
 
         var eye = camera.getEye();
-
 
         collision = terrain.isCollision(eye);
 
@@ -300,7 +295,7 @@ public class Renderer extends AbstractRenderer {
         glPopMatrix();
 
         if (firstPerson){
-            //Cockpit
+            plane.renderFirstPerson();
         }
         else {
             glPushMatrix();
@@ -318,6 +313,7 @@ public class Renderer extends AbstractRenderer {
         textRenderer.addStr2D(3, 40, "P " + (firstPerson ? "First person" : "Third person"));
         textRenderer.addStr2D(3, 100, "ActualSpeed: " + plane.getActualSpeed());
         textRenderer.addStr2D(3, 120, "Speed: " + plane.getSpeed());
+        textRenderer.addStr2D(3, 140, String.format("Fps %d", FpsHelper.getInstance().getFps()));
 
         if (debug){
             String textInfo = "position " + camera.getPosition().toString();
@@ -325,7 +321,6 @@ public class Renderer extends AbstractRenderer {
 
             textRenderer.addStr2D(3, 60, textInfo);
 
-            textRenderer.addStr2D(3, 80, "Frame Count: " + frameNum + ", FPS: " + getFPS());
         }
 
         if (collision){
@@ -333,17 +328,5 @@ public class Renderer extends AbstractRenderer {
         }
 
         textRenderer.addStr2D(width - 150, height - 3, "PGRF @ UHK  LETADLOS");
-    }
-
-    private long getFPS(){
-        return 1000 / getDeltaTime();
-    }
-
-    private int getDeltaTime(){
-        long time = System.currentTimeMillis();
-        int delta = (int) (time - lastFrame);
-
-        lastFrame = time;
-        return delta;
     }
 }

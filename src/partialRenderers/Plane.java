@@ -6,6 +6,7 @@ import lwjglutils.OGLTexture2D;
 import transforms.Mat4;
 import transforms.Vec3D;
 import utils.Converters;
+import utils.FpsHelper;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -166,7 +167,11 @@ public class Plane {
 
         if(actualSpeed == speed) return;
 
-        float deltaStep = (steps * ( getDeltaTime())) / 10;
+        int fps = FpsHelper.getInstance().getDeltaMs();
+
+        float deltaStep = steps * fps;
+
+        if (Math.abs(actualSpeed) > 0)
 
         if (actualSpeed < speed)
         {
@@ -176,6 +181,11 @@ public class Plane {
         {
             actualSpeed -= deltaStep;
         }
+    }
+
+    public void renderFirstPerson(){
+        updateSpeed();
+        camera.backward(actualSpeed);
     }
 
     public void Render()

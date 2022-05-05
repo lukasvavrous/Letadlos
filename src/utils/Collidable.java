@@ -3,6 +3,8 @@ package utils;
 import partialRenderers.Building;
 import transforms.Vec3D;
 
+import java.util.ArrayList;
+
 public abstract class Collidable {
     protected int height, width;
     protected Vec3D origin;
@@ -25,7 +27,7 @@ public abstract class Collidable {
         return isXCollision(p) && isYCollision(p) && isZCollision(p);
     }
 
-    public boolean isOverlaping(Building b){
+    public boolean isOverlaping(Collidable b){
         // Left -> top | down
         boolean l_t = isCollision(new Vec3D(b.origin.getX() - b.width, 0, b.origin.getZ() + b.width));
         boolean l_d = isCollision(new Vec3D(b.origin.getX() - b.width, 0, b.origin.getZ() - b.width));
@@ -35,5 +37,17 @@ public abstract class Collidable {
         boolean r_d = isCollision(new Vec3D(b.origin.getX() + b.width, 0, b.origin.getZ() - b.width));
 
         return ( l_t || l_d || r_t || r_d);
+    }
+
+    //public static boolean withoutColision(ArrayList<Collidable> collidables, Collidable toCheck){
+    public static boolean withoutColision(ArrayList<Building> collidables, Building toCheck){
+        boolean overlap = false;
+
+        for (Building collidable: collidables) {
+            if(collidable.isOverlaping(toCheck))
+                overlap = true;
+        }
+
+        return !overlap;
     }
 }

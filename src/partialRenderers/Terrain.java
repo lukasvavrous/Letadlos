@@ -3,9 +3,13 @@ package partialRenderers;
 import lwjglutils.OGLTexture2D;
 import transforms.Vec3D;
 import utils.BuildingGenerator;
+import utils.Collidable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Optional;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
@@ -15,6 +19,8 @@ public class Terrain implements IRenderable{
     private OGLTexture2D roadTexture;
 
     ArrayList<Building> buildings;
+
+    ArrayList<Collidable> collidables;
 
     int runwayWidth = 25;
     int runwayLength = 200;
@@ -26,10 +32,9 @@ public class Terrain implements IRenderable{
     private BuildingGenerator buildingGenerator;
 
     public Terrain(){
+        collidables = new ArrayList<Collidable>();
         buildings = new ArrayList<>();
         buildingGenerator = new BuildingGenerator(terrainSize, buildings);
-
-        buildingGenerator.generate();
 
         buildingGenerator.generateAmount(buildingNumber);
 
@@ -52,7 +57,12 @@ public class Terrain implements IRenderable{
         boolean result = false;
 
         //At first check ground hit
-        if (pos.getX() >= -terrainSize && pos.getX() <= terrainSize && pos.getY() < 1 && pos.getY() > -1 && pos.getZ() >= -terrainSize && pos.getZ() <= terrainSize){
+        if (pos.getX() >= -terrainSize &&
+            pos.getX() <= terrainSize &&
+            pos.getY() < 1 &&
+            pos.getY() > -1 &&
+            pos.getZ() >= -terrainSize &&
+            pos.getZ() <= terrainSize){
             result = true;
         }
 
@@ -71,6 +81,13 @@ public class Terrain implements IRenderable{
 
     public void generateBuildings(){
         buildingGenerator.generateAmount(buildingNumber);
+
+        if (buildings == null || buildings.size() == 0) return;
+
+        Optional<Building> highestBuilding = buildings.stream().max(Comparator.comparing(Building::getHeight));
+
+        System.out.println("Nejvyšší: " + (!highestBuilding.isPresent() ? "Bez objektu" : Integer.toString(highestBuilding.get().getHeight())));
+
     }
 
     public void regenerateBuilding(){

@@ -31,6 +31,9 @@ public class Building extends Collidable implements IRenderable{
             e.printStackTrace();
         }
     }
+    public int getHeight(){
+        return this.height;
+    }
 
     @Override
     public void Render() {
