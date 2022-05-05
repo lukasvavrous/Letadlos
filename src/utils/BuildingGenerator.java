@@ -4,10 +4,12 @@ import partialRenderers.Building;
 import transforms.Vec3D;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IllegalFormatCodePointException;
 import java.util.Random;
 
 public class BuildingGenerator {
-    protected int maxHeight = 120;
+    protected int maxHeight = 500;
     protected int minHeight = 10;
 
     protected int maxSize = 70;
@@ -26,13 +28,13 @@ public class BuildingGenerator {
 
     public void generateAmount(int number){
         while (number >= 0){
-            generate();
+            generateWithoutOverlap();
 
             number--;
         }
     }
 
-    public void generate(){
+    public Building getNewBuilding(){
         int height = random.nextInt(maxHeight - minHeight) + minHeight;
         int size = random.nextInt(maxSize - minSize) + minSize;
 
@@ -58,6 +60,13 @@ public class BuildingGenerator {
                 break;
         }
 
-        buildings.add(new Building(origin, height/2, height));
+        return new Building(origin, size, height);
+    }
+
+    public void generateWithoutOverlap(){
+        Building generatedBuilding = getNewBuilding();
+
+        if(Collidable.withoutColision(buildings, generatedBuilding))
+            buildings.add(generatedBuilding);
     }
 }
