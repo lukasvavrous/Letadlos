@@ -26,14 +26,19 @@ public abstract class Collidable {
     }
 
     public boolean isOverlaping(Building b){
-        // Left top | down
+        // Left -> top | down
         boolean l_t = isCollision(new Vec3D(b.origin.getX() - b.width, 0, b.origin.getZ() + b.width));
-        boolean l_d =isCollision(new Vec3D(b.origin.getX() - b.width, 0, b.origin.getZ() - b.width));
+        boolean l_d = isCollision(new Vec3D(b.origin.getX() - b.width, 0, b.origin.getZ() - b.width));
 
-        // Right top | down
+        // Right -> top | down
         boolean r_t = isCollision(new Vec3D(b.origin.getX() + b.width, 0, b.origin.getZ() + b.width));
         boolean r_d = isCollision(new Vec3D(b.origin.getX() + b.width, 0, b.origin.getZ() - b.width));
 
         return ( l_t || l_d || r_t || r_d);
+    }
+
+    public boolean isNotOverlaping(Building b)
+    {
+        return !isOverlaping(b);
     }
 }

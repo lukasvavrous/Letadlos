@@ -41,6 +41,8 @@ public class Renderer extends AbstractRenderer {
 
     private double zfar = 10000;
 
+    private float scroll;
+
     private Plane plane;
     private Terrain terrain;
     private SkyBox skyBox;
@@ -48,6 +50,9 @@ public class Renderer extends AbstractRenderer {
 
     private boolean firstPerson = false;
     private boolean debug = false;
+    private boolean collision = false;
+
+
 
     public Renderer() {
         super();
@@ -68,14 +73,6 @@ public class Renderer extends AbstractRenderer {
                         case GLFW_KEY_R:
                             init();
                             break;
-
-                        case GLFW_KEY_G:
-                            terrain.regenerateBuilding();
-                        break;
-
-                        case GLFW_KEY_B:
-                            terrain.generateBuildings();
-                        break;
 
                         case GLFW_KEY_P:
                             firstPerson = !firstPerson;
@@ -98,6 +95,14 @@ public class Renderer extends AbstractRenderer {
                     }
                 }
                 switch (key) {
+                    case GLFW_KEY_G:
+                        terrain.regenerateBuilding();
+                        break;
+
+                    case GLFW_KEY_B:
+                        terrain.generateBuildings();
+                        break;
+
                     case GLFW_KEY_W:
                         camera.forward(trans);
                         if (deltaTrans < 0.001f)
@@ -123,12 +128,10 @@ public class Renderer extends AbstractRenderer {
                         break;
 
                     case GLFW_KEY_UP:
-                        if (power < 10)
-                            power += 0.02f;
+                        plane.faster();
                         break;
                     case GLFW_KEY_DOWN:
-                        if (power >= 0.02f)
-                            power -= 0.02f;
+                        plane.slower();
                         break;
                 }
             }
@@ -188,6 +191,8 @@ public class Renderer extends AbstractRenderer {
             @Override
             public void invoke(long window, double dx, double dy) {
                 camera.forward(dy * 10);
+
+                scroll += dy;
             }
         };
     }
@@ -230,30 +235,45 @@ public class Renderer extends AbstractRenderer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
         camera = new GLCamera();
-        camera.setPosition(new Vec3D(0, 10, 0));
-        camera.setFirstPerson(false);
         camera.setRadius(10);
+        camera.setPosition(new Vec3D(0, 15, 0));
+
+        if (firstPerson){
+            camera.setFirstPerson(true);
+        }
+        else {
+            setThirdPerson();
+        }
 
         terrain = new Terrain();
         buildings = new ArrayList<>();
         skyBox = new SkyBox();
-        plane = new Plane();
+        plane = new Plane(camera);
     }
+
+    private void setFirstPerson(){
+        camera.setFirstPerson(true);
+    }
+
+    private void setThirdPerson(){
+
+        camera.setFirstPerson(false);
+        camera.setRadius(10);
+    }
+
+
 
     @Override
     public void display() {
         frameNum++;
 
-        camera.forward(power);
+        String text = "R reset G-regenerate B-generate";
 
-        if(terrain.isCollision(camera.getPosition())){
-            int a = 20;
-        }
+        collision = terrain.isCollision(camera.getPosition());
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-        String text = "Reset: [ R ] | Power: " + power + " G-regenerate B-generate";
 
         trans += deltaTrans;
 
@@ -285,12 +305,15 @@ public class Renderer extends AbstractRenderer {
             glPopMatrix();
 
             glPushMatrix();
-            plane.Render(camera);
+            plane.setVar(scroll);
+            plane.Render();
             glPopMatrix();
         }
 
         textRenderer.addStr2D(3, 20, text);
         textRenderer.addStr2D(3, 40, "P " + (firstPerson ? "First person" : "Third person"));
+        textRenderer.addStr2D(3, 100, "ActualSpeed: " + plane.getActualSpeed());
+        textRenderer.addStr2D(3, 120, "Speed: " + plane.getSpeed());
 
         if (debug){
             String textInfo = "position " + camera.getPosition().toString();
@@ -299,6 +322,10 @@ public class Renderer extends AbstractRenderer {
             textRenderer.addStr2D(3, 60, textInfo);
 
             textRenderer.addStr2D(3, 80, "Frame Count: " + frameNum + ", FPS: " + getFPS());
+        }
+
+        if (collision){
+            textRenderer.addStr2D(width / 2, height /2, "Collision");
         }
 
         textRenderer.addStr2D(width - 150, height - 3, "PGRF @ UHK  LETADLOS");

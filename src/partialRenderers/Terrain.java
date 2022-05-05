@@ -2,6 +2,7 @@ package partialRenderers;
 
 import lwjglutils.OGLTexture2D;
 import transforms.Vec3D;
+import utils.BuildingGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +21,13 @@ public class Terrain implements IRenderable{
     int runwayLength = 200;
 
     int terrainSize = 1000;
+
+
+    int _maxHeight = 70;
+    int _minHeight = 10;
+
+    int _maxSize = 70;
+    int _minSize = 10;
 
     public Terrain(){
         buildings = new ArrayList<>();
@@ -58,6 +66,8 @@ public class Terrain implements IRenderable{
         generateBuildings();
     }
 
+/*
+
     public void generateBuildings(){
         int maxHeight = 70;
         int minHeight = 10;
@@ -67,17 +77,93 @@ public class Terrain implements IRenderable{
 
         Random random = new Random();
 
+        int number = 20;
+
+        for (int i = 0; i <= number; i++){
+            switch (i % 4){
+                case 0:
+                    l_d();
+                break;
+                case 1:
+                    l_t();
+                    break;
+                case 2:
+                    r_d();
+                    break;
+                case 3:
+                    r_t();
+                    break;
+                default:
+                    System.out.println("Chbyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+                    break;
+            }
+
+        }
+
+        BuildingGenerator generator = new BuildingGenerator();
+
+            Building _building = new Building(new Vec3D(x, 0, z), size, height);
+
+            if(buildings.stream().allMatch(_building::isNotOverlaping)){
+
+            buildings.add(_building);
+
+            // Is not overlaying with others
+            while(!buildings.stream().allMatch(_building::isNotOverlaping)){
+                int x = random.nextInt(availableSize);
+                int z = random.nextInt(availableSize);
+
+                _building = new Building(new Vec3D(x, 0, z), size, height);
+
+                isNotOverlaying(_building){
+                    bre
+                }
+
+                boolean allNotOverlaped = buildings.stream().allMatch(_building::isNotOverlaping);
+            }
+            if (allNotOverlaped){
+                buildings.add(_building);
+            }
+            else {
+                for (int n = x; x < availableSize; i++){
+                    _building = new Building(new Vec3D(n, 0, z), size, height);
+
+                    allNotOverlaped = buildings.stream().allMatch(_building::isNotOverlaping);
+
+                    if(allNotOverlaped) {
+                        buildings.add(_building);
+
+                        break;
+                    }
+                }
+
+                if ()
+            }
+         */
+
+    public void generateBuildings(){
+        int maxHeight = 100;
+        int minHeight = 10;
+
+        int maxSize = 80;
+        int minSize = 10;
+
+        Random random = new Random();
+
         //Top right
         for(int i = 0; i <= 10; i++){
             int height = random.nextInt(maxHeight - minHeight) + minHeight;
             int size = random.nextInt(maxSize - minSize) + minSize;
 
-            int x = random.nextInt(terrainSize - size);
-            int z = random.nextInt(terrainSize - size);
+            int availableSize = terrainSize - size;
+
+            int x = random.nextInt(availableSize);
+            int z = random.nextInt(availableSize);
 
             Vec3D origin = new Vec3D(x, 0, z);
 
             buildings.add(new Building(origin, size, height));
+
         }
 
         //Bottom right

@@ -20,14 +20,56 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 public class Plane {
     private OGLTexture2D planeTexture;
 
+    private long lastFrame;
+
     private int vaoId, vboId, iboId, vaoIdOBJ;
     OGLModelOBJ model;
 
-    private float planeAngle = 0;
+    float speed = 0;
+    float steps = 0.1f;
 
-    public Plane(){
+    float actualSpeed = 0;
+
+    private float variable = 0;
+
+    private float planeAngle = 0;
+    GLCamera camera;
+
+    public Plane(GLCamera camera){
+        this.camera = camera;
         loadTextures();
         init();
+    }
+
+    public void setVar(float var){
+        this.variable = var;
+    }
+
+    public void faster(){
+        speed ++;
+    }
+
+    public float getActualSpeed(){
+        return actualSpeed;
+    }
+    public float getSpeed(){
+        return speed;
+    }
+
+    public void setSpeed(float speed){
+        this.speed = speed;
+    }
+
+    private int getDeltaTime(){
+        long time = System.currentTimeMillis();
+        int delta = (int) (lastFrame - time);
+
+        lastFrame = time;
+        return delta;
+    }
+
+    public void slower(){
+        speed --;
     }
 
     public void loadTextures() {
@@ -37,6 +79,14 @@ public class Plane {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void up(){
+        camera.up(speed);
+    }
+
+    public void down(){
+        camera.down(speed);
     }
 
     public void right(){
@@ -108,11 +158,34 @@ public class Plane {
         glEndList();
     }
 
+    private void updateSpeed(){
+        if (speed == 0){
+            actualSpeed = 0;
+            return;
+        }
 
-    public void Render(GLCamera camera)
+        if(actualSpeed == speed) return;
+
+        float deltaStep = steps * 1/getDeltaTime();
+
+        if (actualSpeed < speed)
+        {
+            actualSpeed += deltaStep;
+        }
+        else
+        {
+            actualSpeed -= deltaStep;
+        }
+    }
+
+    public void Render()
     {
+        updateSpeed();
+
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
+        camera.backward(actualSpeed);
 
         float[] array = new float[16];
 
@@ -126,10 +199,9 @@ public class Plane {
         //System.out.println(mat);
 
         // WTF
-        glTranslated(camPos.getX(),camPos.getY() - 12, camPos.getZ() - 70);
+        glTranslated(camPos.getX(),camPos.getY(), camPos.getZ() - 70);
         glRotatef(180,0,1,0);
         glScalef(10f, 10f, 10f);
-
         glRotatef(planeAngle,0, 0, 1);
 
         // Render full model
