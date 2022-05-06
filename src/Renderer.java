@@ -71,6 +71,7 @@ public class Renderer extends AbstractRenderer {
 
                 if (action == GLFW_PRESS) {
                     switch (key) {
+                        // Restart
                         case GLFW_KEY_R:
                             init();
                             break;
@@ -86,54 +87,37 @@ public class Renderer extends AbstractRenderer {
                                 camera.setRadius(10);
                             }
                             break;
-
-                        case GLFW_KEY_W:
-                        case GLFW_KEY_S:
-                        case GLFW_KEY_A:
-                        case GLFW_KEY_D:
-                            deltaTrans = 0.001f;
-                            break;
                     }
                 }
                 switch (key) {
+                    // Utils
                     case GLFW_KEY_G:
                         terrain.regenerateBuilding();
                         break;
-/*
-                    case GLFW_KEY_L:
-                        Building.textureCoef += 0.5f;
-                        break;
 
-
- */
                     case GLFW_KEY_B:
                         terrain.generateBuildings();
                         break;
 
-                    case GLFW_KEY_W:
-                        camera.forward(trans);
-                        if (deltaTrans < 0.001f)
-                            deltaTrans = 0.001f;
-                        else
-                            deltaTrans *= 1.02;
-                        break;
 
-                    case GLFW_KEY_S:
-                        camera.backward(trans);
-                        if (deltaTrans < 0.001f)
-                            deltaTrans = 0.001f;
-                        else
-                            deltaTrans *= 1.02;
+                    // Movement
+                    case GLFW_KEY_W:
+                        plane.up();
                         break;
 
                     case GLFW_KEY_A:
                         plane.left();
                         break;
 
+                    case GLFW_KEY_S:
+                        plane.down();
+                        break;
+
                     case GLFW_KEY_D:
                         plane.right();
                         break;
 
+                    // Speed
                     case GLFW_KEY_UP:
                         plane.faster();
                         break;
@@ -168,29 +152,40 @@ public class Renderer extends AbstractRenderer {
             @Override
             public void invoke(long window, double x, double y) {
                 if (mouseButton1) {
-                    dx = (float) x - ox;
-                    dy = (float) y - oy;
-                    ox = (float) x;
-                    oy = (float) y;
 
-                    float zenitDiff = dy / width * 180;
-                    float azimutDiff = dx / height * 180;
 
-                    zenit -= zenitDiff;
-
-                    if (zenit > 90)
-                        zenit = 90;
-                    if (zenit <= -90)
-                        zenit = -90;
-
-                    azimut += azimutDiff;
-
-                    azimut = azimut % 360;
-                    camera.setAzimuth(Math.toRadians(azimut));
-                    camera.setZenith(Math.toRadians(zenit));
-                    dx = 0;
-                    dy = 0;
                 }
+
+                dx = (float) x - ox;
+                dy = (float) y - oy;
+                ox = (float) x;
+                oy = (float) y;
+
+                float zenitDiff = dy / width * 180;
+                float azimutDiff = dx / height * 180;
+
+                zenit -= zenitDiff;
+                azimut += azimutDiff;
+                azimut = azimut % 360;
+
+                if (zenit > 90)
+                    zenit = 90;
+                if (zenit <= -90)
+                    zenit = -90;
+
+                double radAzimuth = Math.toRadians(azimut);
+                double radZenith = Math.toRadians(zenit);
+
+                System.out.println("azimut: " + azimut + "radAzimuth: " + radAzimuth);
+                System.out.println("zenit: " + zenit + "radZenith: " + radZenith);
+
+                camera.setAzimuth(radAzimuth);
+                camera.setZenith(radZenith);
+
+                dx = 0;
+                dy = 0;
+
+
             }
         };
 
@@ -326,7 +321,6 @@ public class Renderer extends AbstractRenderer {
             textInfo += String.format(" azimuth %3.1f, zenith %3.1f", azimut, zenit);
 
             textRenderer.addStr2D(3, 60, textInfo);
-
         }
 
         if (collision){

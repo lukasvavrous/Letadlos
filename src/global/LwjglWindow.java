@@ -173,6 +173,8 @@ public class LwjglWindow {
 
 		// Make the window visible
 		glfwShowWindow(window);
+
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 	private void loop() {

@@ -4,6 +4,7 @@ import transforms.Vec3D;
 import java.util.ArrayList;
 
 public abstract class Collidable implements PhysicalObject {
+
     protected int height, width;
     protected Vec3D origin;
 

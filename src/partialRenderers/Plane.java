@@ -47,7 +47,7 @@ public class Plane {
     }
 
     public void faster(){
-        speed ++;
+        speed += 0.2f;
     }
 
     public float getActualSpeed(){
@@ -70,7 +70,7 @@ public class Plane {
     }
 
     public void slower(){
-        speed --;
+        speed -= 0.2f;
     }
 
     public void loadTextures() {
@@ -82,19 +82,30 @@ public class Plane {
         }
     }
 
+    private double getOptimalisedSteps(){
+        double _steps= FpsHelper.getInstance().getFps() / 100 * steps;
+
+        System.out.println(_steps);
+
+        return _steps;
+
+    }
+
     public void up(){
-        camera.up(speed);
+        camera.addZenith(getOptimalisedSteps());
     }
 
     public void down(){
-        camera.down(speed);
+        camera.addZenith(-getOptimalisedSteps());
     }
 
     public void right(){
+        camera.addAzimuth(getOptimalisedSteps());
         planeAngle++;
     }
 
     public void left(){
+        camera.addAzimuth(-getOptimalisedSteps());
         planeAngle--;
     }
 
@@ -170,8 +181,6 @@ public class Plane {
         int fps = FpsHelper.getInstance().getDeltaMs();
 
         float deltaStep = steps * fps * (actualSpeed + 0.01f);
-
-
 
         if (actualSpeed < speed)
         {

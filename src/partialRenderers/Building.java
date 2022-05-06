@@ -52,6 +52,10 @@ public class Building extends Collidable implements PhysicalObject, IRenderable{
         if (textureCoef == 0) textureCoef = 1;
     }
 
+    public Type getType(){
+        return Type.BUILDING;
+    }
+
     public void setBuildingTexture(String path) {
         if (buildingTexture != null) return;
 
