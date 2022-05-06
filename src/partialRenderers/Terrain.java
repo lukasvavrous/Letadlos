@@ -29,6 +29,8 @@ public class Terrain implements IRenderable{
 
     int buildingNumber = 15;
 
+    int grassCoeficient = terrainSize / 25;
+
     private BuildingGenerator buildingGenerator;
 
     public Terrain(){
@@ -44,7 +46,7 @@ public class Terrain implements IRenderable{
     public void loadTextures() {
         try
         {
-            this.terrainTexture = new OGLTexture2D("textures/grass.jpg");
+            this.terrainTexture = new OGLTexture2D("textures/seamless-grass.jpg");
             this.roadTexture = new OGLTexture2D("textures/road.jpg");
         }
         catch (IOException e)
@@ -109,13 +111,13 @@ public class Terrain implements IRenderable{
 
             glBegin(GL_QUADS);
 
-            glTexCoord2f(0.0f, 10.0f);
+            glTexCoord2f(0.0f, grassCoeficient);
             glVertex3d(-terrainSize, 0, -terrainSize);
 
-            glTexCoord2f(10.0f, 10.0f);
+            glTexCoord2f(grassCoeficient, grassCoeficient);
             glVertex3d(terrainSize, 0, -terrainSize);
 
-            glTexCoord2f(10.0f, 0.0f);
+            glTexCoord2f(grassCoeficient, 0.0f);
             glVertex3d(terrainSize, 0, terrainSize);
 
             glTexCoord2f(0.0f, 0.0f);

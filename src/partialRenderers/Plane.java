@@ -169,9 +169,9 @@ public class Plane {
 
         int fps = FpsHelper.getInstance().getDeltaMs();
 
-        float deltaStep = steps * fps;
+        float deltaStep = steps * fps * (actualSpeed + 0.01f);
 
-        if (Math.abs(actualSpeed) > 0)
+
 
         if (actualSpeed < speed)
         {
@@ -185,7 +185,7 @@ public class Plane {
 
     public void renderFirstPerson(){
         updateSpeed();
-        camera.backward(actualSpeed);
+        camera.forward(actualSpeed);
     }
 
     public void Render()
@@ -196,7 +196,7 @@ public class Plane {
         glLoadIdentity();
         camera.setMatrix();
 
-        camera.backward(actualSpeed);
+        camera.forward(actualSpeed);
 
         float[] array = new float[16];
 

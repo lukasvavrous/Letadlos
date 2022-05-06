@@ -99,7 +99,13 @@ public class Renderer extends AbstractRenderer {
                     case GLFW_KEY_G:
                         terrain.regenerateBuilding();
                         break;
+/*
+                    case GLFW_KEY_L:
+                        Building.textureCoef += 0.5f;
+                        break;
 
+
+ */
                     case GLFW_KEY_B:
                         terrain.generateBuildings();
                         break;

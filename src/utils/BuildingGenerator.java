@@ -13,21 +13,22 @@ public class BuildingGenerator {
     protected int maxSize = 70;
     protected int minSize = 10;
 
-    Random random = new Random();
-
     private int borders;
 
-    ArrayList<Building> buildings;
+    private Random random;
+
+    private ArrayList<Building> buildings;
 
     public BuildingGenerator(int borders, ArrayList<Building> buildings) {
         this.borders = borders;
         this.buildings = buildings;
+
+        random = new Random();
     }
 
     public void generateAmount(int number){
         while (number >= 0){
             generateWithoutOverlap();
-
             number--;
         }
     }
@@ -64,7 +65,7 @@ public class BuildingGenerator {
     public void generateWithoutOverlap(){
         Building generatedBuilding = getNewBuilding();
 
-        // Generate building is without overlap but try max 50 times
+        // Generate building without overlap but try max 50 times (in case of no free space)
         for (int i = 0; i < 50; i++){
             if(Collidable.withoutColision(buildings, generatedBuilding)){
                 buildings.add(generatedBuilding);
