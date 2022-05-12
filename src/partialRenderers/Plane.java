@@ -30,11 +30,18 @@ public class Plane {
     float steps = 0.1f;
 
     float actualSpeed = 0;
+    float speedStep = 0.075f;
+    float masSpeed = 7;
+
+    public float azimut = 0;
+    public float zenit = 0;
 
     private float variable = 0;
 
     private float planeAngle = 0;
     GLCamera camera;
+
+
 
     public Plane(GLCamera camera){
         this.camera = camera;
@@ -47,7 +54,12 @@ public class Plane {
     }
 
     public void faster(){
-        speed += 0.2f;
+        if(speed <= masSpeed){
+            speed += speedStep;
+        }
+        else {
+            speed = masSpeed;
+        }
     }
 
     public float getActualSpeed(){
@@ -70,7 +82,12 @@ public class Plane {
     }
 
     public void slower(){
-        speed -= 0.2f;
+        if(speed >= speedStep){
+            speed -= speedStep;
+        }
+        else {
+            speed = 0;
+        }
     }
 
     public void loadTextures() {
@@ -107,6 +124,10 @@ public class Plane {
     public void left(){
         camera.addAzimuth(-getOptimalisedSteps());
         planeAngle--;
+    }
+
+    public void fire(){
+        System.out.println("Fireeee");
     }
 
     public void preset(){
@@ -180,7 +201,7 @@ public class Plane {
 
         int fps = FpsHelper.getInstance().getDeltaMs();
 
-        float deltaStep = steps * fps * (actualSpeed + 0.01f);
+        float deltaStep = steps * fps * (actualSpeed + 0.001f);
 
         if (actualSpeed < speed)
         {
@@ -193,22 +214,17 @@ public class Plane {
     }
 
     public void renderFirstPerson(){
-        updateSpeed();
-        camera.forward(actualSpeed);
+        doCameraMove();
     }
 
     public void Render()
     {
-        updateSpeed();
+        doCameraMove();
 
         glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
         camera.setMatrix();
 
-        camera.forward(actualSpeed);
-
         float[] array = new float[16];
-
 
         Vec3D camPos = camera.getPosition();
 
@@ -217,8 +233,16 @@ public class Plane {
         Mat4 mat = new Mat4(dArr);
         //System.out.println(mat);
 
-        // WTF
+        glRotatef(-azimut,0, 0, 1);
+        glRotatef(-zenit,1, 0, 0);
 
+
+        //glTranslated(camPos.getX(),camPos.getY() - 12, camPos.getZ());
+        glTranslated(camPos.getX(),camPos.getY() - 12, camPos.getZ() - 70);
+        glRotatef(180,0,1,0);
+        glScalef(10f, 10f, 10f);
+
+        glTranslated(camPos.getX(), 0, 0);
 
         // Render full model
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -247,5 +271,16 @@ public class Plane {
         glDisable(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
+    }
+
+    private void doCameraMove(){
+        updateSpeed();
+
+        double radAzimuth = Math.toRadians(azimut);
+        double radZenith = Math.toRadians(zenit);
+
+        camera.forward(actualSpeed);
+        camera.setAzimuth(radAzimuth);
+        camera.setZenith(-radZenith);
     }
 }

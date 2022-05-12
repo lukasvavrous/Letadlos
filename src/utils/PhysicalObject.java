@@ -3,7 +3,6 @@ package utils;
 import transforms.Vec3D;
 
 public interface PhysicalObject {
-    enum Type { BUILDING, RUNWAY, TERRAIN, OTHER}
 
 
     boolean isOverlaping(PhysicalObject obj);
@@ -12,5 +11,5 @@ public interface PhysicalObject {
     int getWidth();
     int getHeight();
 
-    Type getType();
+    ColliderType getType();
 }

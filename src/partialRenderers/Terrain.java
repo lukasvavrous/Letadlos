@@ -4,10 +4,11 @@ import lwjglutils.OGLTexture2D;
 import transforms.Vec3D;
 import utils.BuildingGenerator;
 import utils.Collidable;
+import utils.ColliderType;
+import utils.PhysicalObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -33,12 +34,21 @@ public class Terrain implements IRenderable{
 
     private BuildingGenerator buildingGenerator;
 
+    public PhysicalObject floorObject;
+
     public Terrain(){
         collidables = new ArrayList<Collidable>();
         buildings = new ArrayList<>();
         buildingGenerator = new BuildingGenerator(terrainSize, buildings);
 
         buildingGenerator.generateAmount(buildingNumber);
+
+        floorObject = new Collidable() {
+            @Override
+            public ColliderType getType() {
+                return ColliderType.TERRAIN;
+            }
+        };
 
         loadTextures();
     }
@@ -56,25 +66,35 @@ public class Terrain implements IRenderable{
     }
 
     public boolean isCollision(Vec3D pos){
-        boolean result = false;
+        return getCollider(pos) != null;
+    }
 
-        //At first check ground hit
+    public ColliderType getCollider(Vec3D pos){
+        ColliderType result = null;
+
+        //At first check runway hit
+        if (pos.getX() >= -runwayLength &&
+                pos.getX() <= runwayLength &&
+                pos.getY() < 1 &&
+                pos.getY() > -1 &&
+                pos.getZ() >= -runwayWidth &&
+                pos.getZ() <= runwayWidth)
+            return ColliderType.RUNWAY;
+
+        //Ground hit
         if (pos.getX() >= -terrainSize &&
-            pos.getX() <= terrainSize &&
-            pos.getY() < 1 &&
-            pos.getY() > -1 &&
-            pos.getZ() >= -terrainSize &&
-            pos.getZ() <= terrainSize){
-            result = true;
-        }
+                pos.getX() <= terrainSize &&
+                pos.getY() < 1 &&
+                pos.getY() > -1 &&
+                pos.getZ() >= -terrainSize &&
+                pos.getZ() <= terrainSize)
+            return ColliderType.TERRAIN;
 
-        if (!result) return result;
 
+        //Then check hit with other buildings
         for (Building building : buildings){
             if(building.isCollision(pos)){
-                building.wasHit = true;
-
-                result = true;
+                result = ColliderType.BUILDING;
             }
         }
 
@@ -85,11 +105,6 @@ public class Terrain implements IRenderable{
         buildingGenerator.generateAmount(buildingNumber);
 
         if (buildings == null || buildings.size() == 0) return;
-
-        Optional<Building> highestBuilding = buildings.stream().max(Comparator.comparing(Building::getHeight));
-
-        System.out.println("Nejvyšší: " + (!highestBuilding.isPresent() ? "Bez objektu" : Integer.toString(highestBuilding.get().getHeight())));
-
     }
 
     public void regenerateBuilding(){
@@ -103,44 +118,54 @@ public class Terrain implements IRenderable{
         glPushMatrix();
 
             glEnable(GL_TEXTURE_2D);
-            terrainTexture.bind(); //-y bottom
+        terrainTexture.bind();
 
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
-            glBegin(GL_QUADS);
+            renderGround();
 
-            glTexCoord2f(0.0f, grassCoeficient);
-            glVertex3d(-terrainSize, 0, -terrainSize);
-
-            glTexCoord2f(grassCoeficient, grassCoeficient);
-            glVertex3d(terrainSize, 0, -terrainSize);
-
-            glTexCoord2f(grassCoeficient, 0.0f);
-            glVertex3d(terrainSize, 0, terrainSize);
-
-            glTexCoord2f(0.0f, 0.0f);
-            glVertex3d(-terrainSize, 0, terrainSize);
-            glEnd();
-
-            roadTexture.bind(); //-y bottom
-            glBegin(GL_QUADS);
-
-            glTexCoord2f(0.0f, 1.0f);
-            glVertex3d(-runwayLength, 0.1, -runwayWidth);
-
-            glTexCoord2f(1.0f, 1.0f);
-            glVertex3d(runwayLength, 0.1, -runwayWidth);
-
-            glTexCoord2f(1.0f, 0.0f);
-            glVertex3d(runwayLength, 0.1, runwayWidth);
-
-            glTexCoord2f(0.0f, 0.0f);
-            glVertex3d(-runwayLength, 0.1, runwayWidth);
-            glEnd();
+            renderRunway();
 
             glDisable(GL_TEXTURE_2D);
         glPopMatrix();
+    }
+
+    private void renderGround(){
+
+        glBegin(GL_QUADS);
+
+        glTexCoord2f(0.0f, grassCoeficient);
+        glVertex3d(-terrainSize, 0, -terrainSize);
+
+        glTexCoord2f(grassCoeficient, grassCoeficient);
+        glVertex3d(terrainSize, 0, -terrainSize);
+
+        glTexCoord2f(grassCoeficient, 0.0f);
+        glVertex3d(terrainSize, 0, terrainSize);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(-terrainSize, 0, terrainSize);
+        glEnd();
+    }
+
+    private void renderRunway(){
+        roadTexture.bind();
+        glBegin(GL_QUADS);
+
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(-runwayLength, 0.1, -runwayWidth);
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(runwayLength, 0.1, -runwayWidth);
+
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(runwayLength, 0.1, runwayWidth);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(-runwayLength, 0.1, runwayWidth);
+        glEnd();
     }
 }

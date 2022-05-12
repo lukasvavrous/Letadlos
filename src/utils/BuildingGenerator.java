@@ -67,7 +67,7 @@ public class BuildingGenerator {
 
         // Generate building without overlap but try max 50 times (in case of no free space)
         for (int i = 0; i < 50; i++){
-            if(Collidable.withoutColision(buildings, generatedBuilding)){
+            if(Collidable.withoutOverlap(buildings, generatedBuilding)){
                 buildings.add(generatedBuilding);
                 break;
             }

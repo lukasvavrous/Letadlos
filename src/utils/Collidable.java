@@ -30,7 +30,20 @@ public abstract class Collidable implements PhysicalObject {
         return ( l_t || l_d || r_t || r_d);
     }
 
-    public static boolean withoutColision(ArrayList<? extends PhysicalObject> collidables, PhysicalObject toCheck){
+    public static ColliderType checkColision(ArrayList<? extends PhysicalObject> collidables, Vec3D pos){
+        ColliderType collision = null;
+
+        for (PhysicalObject collidable: collidables) {
+            if(collidable.isCollision(pos)) {
+                collision = collidable.getType();
+                break;
+            }
+        }
+
+        return collision;
+    }
+
+    public static boolean withoutOverlap(ArrayList<? extends PhysicalObject> collidables, PhysicalObject toCheck){
         boolean overlap = false;
 
         for (PhysicalObject collidable: collidables) {

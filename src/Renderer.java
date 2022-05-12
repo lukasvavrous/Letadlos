@@ -12,11 +12,14 @@ import partialRenderers.SkyBox;
 import partialRenderers.Terrain;
 
 import transforms.Vec3D;
+import utils.DeathSentencer;
 import utils.FpsHelper;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
+import java.util.IllegalFormatCodePointException;
 
 import static global.GluUtils.gluPerspective;
 import static org.lwjgl.glfw.GLFW.*;
@@ -26,6 +29,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class Renderer extends AbstractRenderer {
     private float dx, dy, ox, oy;
+
     private float zenit, azimut;
 
     private float trans, deltaTrans = 0;
@@ -49,11 +53,10 @@ public class Renderer extends AbstractRenderer {
     private boolean firstPerson = true;
     private boolean debug = false;
     private boolean collision = false;
+    private boolean cursor = false;
 
     public int frameNum;
     public long delta = 0;
-
-
 
     public Renderer() {
         super();
@@ -61,9 +64,10 @@ public class Renderer extends AbstractRenderer {
         glfwKeyCallback = new GLFWKeyCallback() {
             @Override
             public void invoke(long window, int key, int scancode, int action, int mods) {
-                if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-                    // We will detect this in our rendering loop
+                if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE){
                     glfwSetWindowShouldClose(window, true);
+                }
+
                 if (action == GLFW_RELEASE) {
                     trans = 0;
                     deltaTrans = 0;
@@ -79,13 +83,21 @@ public class Renderer extends AbstractRenderer {
                         case GLFW_KEY_P:
                             firstPerson = !firstPerson;
 
-                            if(firstPerson){
-                                camera.setFirstPerson(true);
-                            }
-                            else{
-                                camera.setFirstPerson(false);
-                                camera.setRadius(10);
-                            }
+                            if(firstPerson)
+                                setFirstPerson();
+                            else
+                                setThirdPerson();
+
+                            break;
+
+                        case GLFW_KEY_C:
+                            cursor = !cursor;
+
+                            if (cursor)
+                                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                            else
+                                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
                             break;
                     }
                 }
@@ -97,24 +109,6 @@ public class Renderer extends AbstractRenderer {
 
                     case GLFW_KEY_B:
                         terrain.generateBuildings();
-                        break;
-
-
-                    // Movement
-                    case GLFW_KEY_W:
-                        plane.up();
-                        break;
-
-                    case GLFW_KEY_A:
-                        plane.left();
-                        break;
-
-                    case GLFW_KEY_S:
-                        plane.down();
-                        break;
-
-                    case GLFW_KEY_D:
-                        plane.right();
                         break;
 
                     // Speed
@@ -145,15 +139,20 @@ public class Renderer extends AbstractRenderer {
                     oy = (float) y;
                 }
             }
-
         };
 
         glfwCursorPosCallback = new GLFWCursorPosCallback() {
             @Override
             public void invoke(long window, double x, double y) {
                 if (mouseButton1) {
+                    plane.fire();
+                }
 
+                if(ox == Float.MAX_VALUE && oy == Float.MAX_VALUE){
+                    ox = (float) x;
+                    oy = (float) y;
 
+                    return;
                 }
 
                 dx = (float) x - ox;
@@ -173,19 +172,11 @@ public class Renderer extends AbstractRenderer {
                 if (zenit <= -90)
                     zenit = -90;
 
-                double radAzimuth = Math.toRadians(azimut);
-                double radZenith = Math.toRadians(zenit);
-
-                System.out.println("azimut: " + azimut + "radAzimuth: " + radAzimuth);
-                System.out.println("zenit: " + zenit + "radZenith: " + radZenith);
-
-                camera.setAzimuth(radAzimuth);
-                camera.setZenith(radZenith);
+                plane.azimut = azimut;
+                plane.zenit = zenit;
 
                 dx = 0;
                 dy = 0;
-
-
             }
         };
 
@@ -199,10 +190,34 @@ public class Renderer extends AbstractRenderer {
         };
     }
 
+    private void onDeath(){
+        glPushMatrix();
+        glColor3f(0,0,0);
+
+        glBegin(GL_QUADS);
+
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3d(-100, 0.1, -100);
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3d(100, 0.1, -100);
+
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3d(100, 0.1, 100);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3d(-100, 0.1, 100);
+        glEnd();
+
+    }
+
     private void initVariables(){
         deltaTrans = 0;
 
         zfar = 10000;
+
+        ox = Float.MAX_VALUE;
+        oy = Float.MAX_VALUE;
     }
 
     @Override
@@ -247,6 +262,7 @@ public class Renderer extends AbstractRenderer {
         buildings = new ArrayList<>();
         skyBox = new SkyBox();
         plane = new Plane(camera);
+
     }
 
     private void setFirstPerson(){
@@ -261,15 +277,17 @@ public class Renderer extends AbstractRenderer {
 
     @Override
     public void display() {
-        frameNum++;
-
-        String text = "R reset G-regenerate B-generate";
-
-        Vec3D camPos = camera.getPosition();
-
-        var eye = camera.getEye();
+        Vec3D eye = camera.getEye();
 
         collision = terrain.isCollision(eye);
+
+        if(collision){
+            textRenderer.xCenterAddStr2D(height / 2, DeathSentencer.getTextForCollisionType(terrain.getCollider(eye)), 32, Color.red);
+            textRenderer.xCenterAddStr2D((height / 2) + 50, "Stiskni R pro restart", 26, Color.WHITE);
+
+            return;
+        }
+        frameNum++;
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -305,28 +323,28 @@ public class Renderer extends AbstractRenderer {
             glPopMatrix();
 
             glPushMatrix();
-            plane.setVar(scroll);
             plane.Render();
             glPopMatrix();
         }
 
-        textRenderer.addStr2D(3, 20, text);
-        textRenderer.addStr2D(3, 40, "P " + (firstPerson ? "First person" : "Third person"));
-        textRenderer.addStr2D(3, 100, "ActualSpeed: " + plane.getActualSpeed());
-        textRenderer.addStr2D(3, 120, "Speed: " + plane.getSpeed());
-        textRenderer.addStr2D(3, 140, String.format("Fps %d", FpsHelper.getInstance().getFps()));
+        textRenderer.customAddStr2D(3, 20, "R- Reset");
+        textRenderer.customAddStr2D(3, 40, "G- Regenerage buildings");
+        textRenderer.customAddStr2D(3, 60, "B- Add buildings");
+        textRenderer.customAddStr2D(3, 80, "R- Reset");
+        textRenderer.customAddStr2D(3, 100, "C- On/Off Cursor");
+        textRenderer.customAddStr2D(3, 120, "P " + (firstPerson ? "First person" : "Third person"));
+
+        textRenderer.addStr2D(width - 100, 20, "ActualSpeed: " + plane.getActualSpeed());
+        textRenderer.addStr2D(width - 100, 40, "Speed: " + plane.getSpeed());
+        textRenderer.addStr2D(width - 100, 60, String.format("Fps %d", FpsHelper.getInstance().getFps()));
 
         if (debug){
             String textInfo = "position " + camera.getPosition().toString();
-            textInfo += String.format(" azimuth %3.1f, zenith %3.1f", azimut, zenit);
+            textInfo += String.format(" az: %3.1f, zen: %3.1f", azimut, zenit);
 
             textRenderer.addStr2D(3, 60, textInfo);
         }
 
-        if (collision){
-            textRenderer.addStr2D(width / 2, height /2, "Collision");
-        }
-
-        textRenderer.addStr2D(width - 150, height - 3, "PGRF @ UHK  LETADLOS");
+        textRenderer.xCenterAddStr2D(height - 3, "LETADLOS_LUKAS_VAVROUS_PGRF@UHK", 10, Color.white);
     }
 }

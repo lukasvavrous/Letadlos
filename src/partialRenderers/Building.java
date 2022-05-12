@@ -3,6 +3,7 @@ package partialRenderers;
 import lwjglutils.OGLTexture2D;
 import transforms.Vec3D;
 import utils.Collidable;
+import utils.ColliderType;
 import utils.PhysicalObject;
 
 import java.io.IOException;
@@ -52,8 +53,8 @@ public class Building extends Collidable implements PhysicalObject, IRenderable{
         if (textureCoef == 0) textureCoef = 1;
     }
 
-    public Type getType(){
-        return Type.BUILDING;
+    public ColliderType getType(){
+        return ColliderType.BUILDING;
     }
 
     public void setBuildingTexture(String path) {
