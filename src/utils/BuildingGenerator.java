@@ -3,8 +3,11 @@ package utils;
 import partialRenderers.Building;
 import transforms.Vec3D;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class BuildingGenerator {
     protected int maxHeight = 150;
@@ -64,6 +67,8 @@ public class BuildingGenerator {
 
     public void generateWithoutOverlap(){
         Building generatedBuilding = getNewBuilding();
+
+
 
         // Generate building without overlap but try max 50 times (in case of no free space)
         for (int i = 0; i < 50; i++){

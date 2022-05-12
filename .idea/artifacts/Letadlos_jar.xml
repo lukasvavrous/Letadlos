@@ -1,0 +1,77 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Letadlos:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Letadlos_jar</output-path>
+    <root id="archive" name="Letadlos.jar">
+      <element id="module-output" name="Letadlos" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-assimp-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-assimp.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-bgfx-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-bgfx.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-cuda.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-egl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-glfw-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-glfw.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-jawt.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-jemalloc-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-jemalloc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-libdivide-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-libdivide.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-llvm-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-llvm.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-lmdb-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-lmdb.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-lz4-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-lz4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-meow-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-meow.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-nanovg-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-nanovg.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-nfd-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-nfd.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-nuklear-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-nuklear.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-odbc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-openal-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-openal.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-opencl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-opengl-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-opengl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-opengles-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-opengles.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-openvr-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-openvr.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-opus-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-opus.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-ovr-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-ovr.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-par-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-par.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-remotery-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-remotery.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-rpmalloc-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-rpmalloc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-sse-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-sse.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-stb-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-stb.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-tinyexr-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-tinyexr.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-tinyfd-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-tinyfd.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-tootle-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-tootle.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-vma-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-vma.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-vulkan.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-xxhash-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-xxhash.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-yoga-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-yoga.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-zstd-natives-windows.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl-zstd.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjgl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Grafika/library/lwjglx-debug-1.0.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

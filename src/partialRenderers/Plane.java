@@ -27,20 +27,17 @@ public class Plane {
     OGLModelOBJ model;
 
     float speed = 0;
-    float steps = 0.1f;
+    float steps = 0.0025f;
 
     float actualSpeed = 0;
     float speedStep = 0.075f;
-    float masSpeed = 7;
+    float maxSpeed = 7;
 
     public float azimut = 0;
     public float zenit = 0;
 
-    private float variable = 0;
-
     private float planeAngle = 0;
     GLCamera camera;
-
 
 
     public Plane(GLCamera camera){
@@ -49,16 +46,13 @@ public class Plane {
         init();
     }
 
-    public void setVar(float var){
-        this.variable = var;
-    }
 
     public void faster(){
-        if(speed <= masSpeed){
+        if(speed <= maxSpeed){
             speed += speedStep;
         }
         else {
-            speed = masSpeed;
+            speed = maxSpeed;
         }
     }
 
@@ -82,8 +76,13 @@ public class Plane {
     }
 
     public void slower(){
-        if(speed >= speedStep){
-            speed -= speedStep;
+
+        //Make slowing faster
+
+        double slowinStep = speedStep * 2;
+
+        if(speed >= slowinStep){
+            speed -= slowinStep;
         }
         else {
             speed = 0;
@@ -102,10 +101,10 @@ public class Plane {
     private double getOptimalisedSteps(){
         double _steps= FpsHelper.getInstance().getFps() / 100 * steps;
 
-        System.out.println(_steps);
+        if(_steps < steps)
+            return steps;
 
         return _steps;
-
     }
 
     public void up(){
@@ -201,15 +200,18 @@ public class Plane {
 
         int fps = FpsHelper.getInstance().getDeltaMs();
 
-        float deltaStep = steps * fps * (actualSpeed + 0.001f);
+        float deltaStep = (fps * (speed - actualSpeed + 0.0001f)) * steps;
 
+        //Getting the velocity up
         if (actualSpeed < speed)
         {
             actualSpeed += deltaStep;
         }
-        else
+
+        //Droping the velocity
+        if (actualSpeed > speed)
         {
-            actualSpeed -= deltaStep;
+            actualSpeed -= steps;
         }
     }
 

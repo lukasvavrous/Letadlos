@@ -279,10 +279,10 @@ public class Renderer extends AbstractRenderer {
     public void display() {
         Vec3D eye = camera.getEye();
 
-        collision = terrain.isCollision(eye);
+        var collider = terrain.getCollider(eye);
 
-        if(collision){
-            textRenderer.xCenterAddStr2D(height / 2, DeathSentencer.getTextForCollisionType(terrain.getCollider(eye)), 32, Color.red);
+        if(collider != null){
+            textRenderer.xCenterAddStr2D(height / 2, DeathSentencer.getTextForCollisionType(collider), width/25, Color.red);
             textRenderer.xCenterAddStr2D((height / 2) + 50, "Stiskni R pro restart", 26, Color.WHITE);
 
             return;
@@ -301,7 +301,7 @@ public class Renderer extends AbstractRenderer {
         gluPerspective(45, width / (float) height, 0.1f, zfar);
 
         GLCamera cameraSky = new GLCamera(camera);
-        cameraSky.setPosition(new Vec3D());
+        cameraSky.setPosition(new Vec3D(0,0,0));
 
         glPushMatrix();
             cameraSky.setMatrix();
@@ -345,6 +345,6 @@ public class Renderer extends AbstractRenderer {
             textRenderer.addStr2D(3, 60, textInfo);
         }
 
-        textRenderer.xCenterAddStr2D(height - 3, "LETADLOS_LUKAS_VAVROUS_PGRF@UHK", 10, Color.white);
+        textRenderer.xCenterAddStr2D(height - 3, "LETADLOS   LUKAS VAVROUS   PGRF @ UHK", 10, Color.white);
     }
 }

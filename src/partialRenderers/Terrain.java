@@ -8,9 +8,8 @@ import utils.ColliderType;
 import utils.PhysicalObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
@@ -36,6 +35,10 @@ public class Terrain implements IRenderable{
 
     public PhysicalObject floorObject;
 
+    private Collidable runway;
+    private Collidable terrain;
+
+
     public Terrain(){
         collidables = new ArrayList<Collidable>();
         buildings = new ArrayList<>();
@@ -51,6 +54,9 @@ public class Terrain implements IRenderable{
         };
 
         loadTextures();
+
+        runway = new RunwayColider(200, 25, new Vec3D(0, 0, 0));
+        terrain = new TerrainColider(1000, 1000, new Vec3D(0, 0, 0));
     }
 
     public void loadTextures() {
@@ -69,32 +75,28 @@ public class Terrain implements IRenderable{
         return getCollider(pos) != null;
     }
 
+    public ArrayList<Collidable> getColidables(){
+        ArrayList<Collidable> collidables = new ArrayList<>();
+
+        var othersCollidables = new ArrayList<Collidable>();
+
+        // Keep runway at first or it´s position will colide with terrain -> Will not return runway type but terrain
+        othersCollidables.add(runway);
+        othersCollidables.add(terrain);
+
+        Stream.of(buildings, othersCollidables).forEach(collidables::addAll);
+
+        return collidables;
+    }
+
     public ColliderType getCollider(Vec3D pos){
         ColliderType result = null;
 
-        //At first check runway hit
-        if (pos.getX() >= -runwayLength &&
-                pos.getX() <= runwayLength &&
-                pos.getY() < 1 &&
-                pos.getY() > -1 &&
-                pos.getZ() >= -runwayWidth &&
-                pos.getZ() <= runwayWidth)
-            return ColliderType.RUNWAY;
+        var collidables= getColidables();
 
-        //Ground hit
-        if (pos.getX() >= -terrainSize &&
-                pos.getX() <= terrainSize &&
-                pos.getY() < 1 &&
-                pos.getY() > -1 &&
-                pos.getZ() >= -terrainSize &&
-                pos.getZ() <= terrainSize)
-            return ColliderType.TERRAIN;
-
-
-        //Then check hit with other buildings
-        for (Building building : buildings){
-            if(building.isCollision(pos)){
-                result = ColliderType.BUILDING;
+        for (Collidable collidable : collidables){
+            if(collidable.isCollision(pos)){
+                result = collidable.getType();
             }
         }
 
@@ -167,5 +169,55 @@ public class Terrain implements IRenderable{
         glTexCoord2f(0.0f, 0.0f);
         glVertex3d(-runwayLength, 0.1, runwayWidth);
         glEnd();
+    }
+
+    private class RunwayColider extends Collidable
+    {
+        RunwayColider(int height, int width, Vec3D origin){
+            this.height = height;
+            this.width = width;
+            this.origin = origin;
+        }
+
+        @Override
+        public boolean isCollision(Vec3D p){
+            float margin = 0.7f;
+
+            boolean x = p.getX() <= origin.getX() + height && p.getX() >= origin.getX() - height;
+            boolean y = p.getY() <= origin.getY() + margin && p.getY() >= origin.getY() - margin;
+            boolean z = p.getZ() <= origin.getZ() + width && p.getZ() >= origin.getZ() - width;
+
+            return x && y && z;
+        }
+
+        @Override
+        public ColliderType getType() {
+            return ColliderType.RUNWAY;
+        }
+    }
+
+    private class TerrainColider extends Collidable
+    {
+        TerrainColider(int height, int width, Vec3D origin){
+            this.height = height;
+            this.width = width;
+            this.origin = origin;
+        }
+
+        @Override
+        public boolean isCollision(Vec3D p){
+            float margin = 0.33f;
+
+            boolean x = p.getX() <= origin.getX() + width && p.getX() >= origin.getX() - width;
+            boolean y = p.getY() <= origin.getY() + margin && p.getY() >= origin.getY() - margin;
+            boolean z = p.getZ() <= origin.getZ() + width && p.getZ() >= origin.getZ() - width;
+
+            return x && y && z;
+        }
+
+        @Override
+        public ColliderType getType() {
+            return ColliderType.TERRAIN;
+        }
     }
 }
